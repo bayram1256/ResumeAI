@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  role          Role     @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  resumes           Resume[]
+  jobDescriptions   JobDescription[]
+  fitReports        FitReport[]
+  coverLetters      CoverLetter[]
+  exportedDownloads ExportedDownload[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ExportKind {
+  IMPROVED_RESUME
+  COVER_LETTER
+}
+
+model Resume {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  originalFilename String
+  filePath         String
+  fileSize         Int
+  fileType         String
+  parsedText       String   @db.Text
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  fitReports       FitReport[]
+  
+  @@index([userId])
+}
+
+model JobDescription {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title           String
+  company         String?
+  rawText         String   @db.Text
+  normalizedText  String   @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  fitReports      FitReport[]
+  coverLetters    CoverLetter[]
+  
+  @@index([userId])
+}
+
+model CoverLetter {
+  id               String          @id @default(uuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobDescriptionId String?
+  jobDescription   JobDescription? @relation(fields: [jobDescriptionId], references: [id], onDelete: SetNull)
+  title            String
+  body             String          @db.Text
+  createdAt        DateTime        @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ExportedDownload {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind        ExportKind
+  format      String
+  displayName String
+  template    String?
+  content     String     @db.LongText
+  createdAt   DateTime   @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model FitReport {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  resumeId            String
+  resume              Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  
+  jobDescriptionId    String
+  jobDescription      JobDescription @relation(fields: [jobDescriptionId], references: [id], onDelete: Cascade)
+  
+  overallScore        Float
+  skillsScore         Float
+  experienceScore     Float
+  educationScore      Float
+  
+  missingSkills       Json
+  matchedSkills       Json
+  
+  createdAt           DateTime @default(now())
+  
+  @@index([userId])
+  @@index([resumeId])
+  @@index([jobDescriptionId])
+}

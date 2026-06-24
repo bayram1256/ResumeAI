@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Your Resume - ResumeAI</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 968px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1e293b;
+        }
+
+        /* Preview Section */
+        .resume-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-thumbnail {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 8.5 / 11;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-thumbnail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
+        .preview-content {
+            padding: 1rem;
+            font-size: 0.75rem;
+            color: #64748b;
+            position: relative;
+            z-index: 1;
+            margin-top: 20%;
+        }
+
+        .preview-line {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0.5rem 0;
+        }
+
+        .resume-details {
+            width: 100%;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 500;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.875rem;
+        }
+
+        /* Format Selection */
+        .format-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .format-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .format-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .format-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .format-option input[type="radio"]:checked + label {
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
+
+        .format-option label:hover {
+            border-color: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .format-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 0.75rem;
+        }
+
+        .format-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.875rem;
+        }
+
+        /* Template Selection */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .template-card {
+            position: relative;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .template-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .template-card:has(input:checked) {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .template-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-color: #2563eb;
+        }
+
+        .template-preview {
+            width: 100%;
+            aspect-ratio: 8.5 / 11;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            position: relative;
+        }
+
+        .template-preview.professional::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 15%;
+            background: #1e293b;
+        }
+
+        .template-preview.modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        }
+
+        .template-preview.creative::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 25%;
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .template-name {
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #1e293b;
+            background: white;
+        }
+
+        .template-card:has(input:checked) .template-name {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        /* Customization Options */
+        .customization-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
+        .checkbox-option label {
+            font-size: 0.9375rem;
+            color: #334155;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* File Name Input */
+        .file-name-section {
+            margin-bottom: 2rem;
+        }
+
+        .file-name-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #334155;
+            font-size: 0.9375rem;
+        }
+
+        .file-name-input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .file-name-input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Download Button */
+        .download-button {
+            width: 100%;
+            padding: 1rem 2rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .download-button:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+
+        .download-button:active {
+            transform: translateY(0);
+        }
+
+        /* Secondary Options */
+        .secondary-options {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .secondary-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .secondary-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .link-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1.5rem;
+            }
+
+            .format-options {
+                flex-direction: column;
+            }
+
+            .secondary-options {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Export Your Resume</h1>
+        </div>
+    </div>
+
+    <main class="main-container">
+        <div class="content-layout">
+            <!-- Preview Section -->
+            <div class="card">
+                <h2 class="card-title">Preview</h2>
+                <div class="resume-preview">
+                    <div class="preview-thumbnail">
+                        <div class="preview-content">
+                            <div class="preview-line"></div>
+                            <div class="preview-line"></div>
+                            <div class="preview-line"></div>
+                            <div class="preview-line"></div>
+                            <div class="preview-line"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="resume-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Name</span>
+                        <span class="detail-value">John Doe</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Target Job Title</span>
+                        <span class="detail-value">Senior Software Engineer</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Last Modified</span>
+                        <span class="detail-value">March 15, 2024</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="card">
+                <h2 class="card-title">Export Options</h2>
+                
+                <!-- Format Selection -->
+                <div class="format-options">
+                    <div class="format-option">
+                        <input type="radio" id="format-pdf" name="format" value="pdf" checked>
+                        <label for="format-pdf">
+                            <svg class="format-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <span class="format-name">PDF</span>
+                        </label>
+                    </div>
+                    <div class="format-option">
+                        <input type="radio" id="format-docx" name="format" value="docx">
+                        <label for="format-docx">
+                            <svg class="format-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                <polyline points="10 9 9 9 8 9"></polyline>
+                            </svg>
+                            <span class="format-name">DOCX</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Template Selection -->
+                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #334155;">Choose Template</h3>
+                <div class="template-grid">
+                    <div class="template-card">
+                        <input type="radio" id="template-professional" name="template" value="professional" checked>
+                        <div class="template-preview professional"></div>
+                        <div class="template-name">Professional</div>
+                    </div>
+                    <div class="template-card">
+                        <input type="radio" id="template-modern" name="template" value="modern">
+                        <div class="template-preview modern"></div>
+                        <div class="template-name">Modern</div>
+                    </div>
+                    <div class="template-card">
+                        <input type="radio" id="template-creative" name="template" value="creative">
+                        <div class="template-preview creative"></div>
+                        <div class="template-name">Creative</div>
+                    </div>
+                </div>
+
+                <!-- Customization Options -->
+                <h3 style="font-size: 1rem; font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; color: #334155;">Customization</h3>
+                <div class="customization-options">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="include-cover-letter" name="options" value="cover-letter">
+                        <label for="include-cover-letter">Include Cover Letter</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="ats-optimized" name="options" value="ats-optimized" checked>
+                        <label for="ats-optimized">ATS-Optimized Format</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Name Input -->
+        <div class="card file-name-section">
+            <label for="file-name" class="file-name-label">File Name</label>
+            <input type="text" id="file-name" class="file-name-input" value="John_Doe_Resume_Senior_Software_Engineer" placeholder="Enter file name">
+        </div>
+
+        <!-- Download Button -->
+        <button class="download-button">Download Resume</button>
+
+        <!-- Secondary Options -->
+        <div class="secondary-options">
+            <a href="#" class="secondary-link">
+                <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                Email to myself
+            </a>
+            <a href="#" class="secondary-link">
+                <svg class="link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"></path>
+                </svg>
+                Save to cloud
+            </a>
+        </div>
+    </main>
+</body>
+</html>
+

@@ -1,0 +1,3266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — ResumeAI</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sidebar-width-expanded: 276px;
+            --sidebar-width-rail: 80px;
+            --sidebar-bg: #f8f9fb;
+            --sidebar-border: #e8eaed;
+            --main-bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --blue: #2563eb;
+            --blue-hover: #1d4ed8;
+            --blue-soft: #eff6ff;
+            --blue-border: #bfdbfe;
+            --step-done: #22c55e;
+            --step-line: #cbd5e1;
+            --sidebar-active: #dbeafe;
+            --sidebar-active-text: #1d4ed8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--main-bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .content-column {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Text toggle on main area edge — not inside the sidebar */
+        .sidebar-menu-tab {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            align-self: flex-start;
+            margin: 0 0 0 -1px;
+            padding: 0.45rem 0.55rem;
+            font: inherit;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #475569;
+            background: #fff;
+            border: 1px solid var(--sidebar-border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .sidebar-menu-tab:hover {
+            background: #f1f5f9;
+            color: var(--text);
+        }
+
+        body.sidebar-collapsed .sidebar-menu-tab .sidebar-menu-tab-label-expanded {
+            display: none;
+        }
+
+        body:not(.sidebar-collapsed) .sidebar-menu-tab .sidebar-menu-tab-label-collapsed {
+            display: none;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width-expanded);
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: width 0.22s ease;
+            overflow: hidden;
+        }
+
+        body.sidebar-collapsed .sidebar {
+            width: var(--sidebar-width-rail);
+        }
+
+        .sidebar-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            padding: 0.85rem 0.75rem 0.85rem 1rem;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+
+        body.sidebar-collapsed .sidebar-header-row {
+            justify-content: center;
+            padding: 0.75rem 0.45rem;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text);
+            min-width: 0;
+        }
+
+        body.sidebar-collapsed .sidebar-brand {
+            justify-content: center;
+        }
+
+        .sidebar-brand-text {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: opacity 0.15s ease, width 0.22s ease;
+        }
+
+        body.sidebar-collapsed .sidebar-brand-text {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: linear-gradient(145deg, #e0f2fe, #bae6fd);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #7dd3fc;
+        }
+
+        .nav-primary {
+            padding: 0.85rem 0.7rem;
+            flex: 1;
+        }
+
+        .nav-btn {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 0.9rem;
+            min-height: 48px;
+            margin-bottom: 0.35rem;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            font: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        body.sidebar-collapsed .nav-btn {
+            justify-content: center;
+            padding: 0.85rem 0.55rem;
+            min-height: 52px;
+        }
+
+        .nav-btn svg {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            opacity: 0.9;
+        }
+
+        .nav-btn-label {
+            min-width: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        body.sidebar-collapsed .nav-btn-label {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.85);
+            color: var(--text);
+        }
+
+        .nav-btn[aria-current="page"] {
+            background: var(--sidebar-active);
+            color: var(--sidebar-active-text);
+        }
+
+        .sidebar-footer {
+            padding: 0.85rem 0.75rem 1rem;
+            border-top: 1px solid var(--sidebar-border);
+        }
+
+        body.sidebar-collapsed .sidebar-footer {
+            padding: 0.75rem 0.45rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 0.65rem;
+            word-break: break-all;
+            line-height: 1.4;
+            transition: opacity 0.15s ease;
+        }
+
+        body.sidebar-collapsed .user-email {
+            display: none;
+        }
+
+        .user-avatar-rail {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #334155;
+            background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+            border: 1px solid #cbd5e1;
+            cursor: default;
+            flex-shrink: 0;
+        }
+
+        body.sidebar-collapsed .user-avatar-rail {
+            display: flex;
+        }
+
+        .btn-logout {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            min-height: 48px;
+            padding: 0.65rem 1rem;
+            font: inherit;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #475569;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .btn-logout svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        body.sidebar-collapsed .btn-logout {
+            width: 48px;
+            height: 48px;
+            min-height: 48px;
+            padding: 0;
+        }
+
+        body.sidebar-collapsed .btn-logout-text {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+        }
+
+        .btn-logout:hover {
+            background: #f8fafc;
+        }
+
+        /* Main */
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 1.25rem 1.5rem 2.5rem;
+            overflow-x: hidden;
+        }
+
+        @media (min-width: 1024px) {
+            .main {
+                padding: 1.75rem 2rem 2.5rem;
+            }
+        }
+
+        .main-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .main-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .main-header p {
+            font-size: 0.9375rem;
+            color: var(--muted);
+            margin-top: 0.35rem;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.is-active {
+            display: block;
+        }
+
+        /* Step track */
+        .step-track-wrap {
+            margin-bottom: 1.75rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
+
+        .step-track {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.25rem;
+            width: 100%;
+            max-width: none;
+        }
+
+        .step-node {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+            position: relative;
+        }
+
+        .step-node::after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: var(--step-line);
+            z-index: 0;
+        }
+
+        .step-node:last-child::after {
+            display: none;
+        }
+
+        .step-node.is-done::after,
+        .step-node.is-active::after {
+            background: linear-gradient(90deg, var(--step-done), var(--step-line));
+        }
+
+        .step-node.is-done::after {
+            background: var(--step-done);
+        }
+
+        .step-node .step-connector-fill {
+            display: none;
+        }
+
+        .step-btn {
+            position: relative;
+            z-index: 1;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--step-line);
+            background: #fff;
+            font: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+        }
+
+        .step-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .step-node.is-active .step-btn {
+            border-color: var(--blue);
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .step-node.is-done .step-btn {
+            border-color: var(--step-done);
+            background: var(--step-done);
+            color: #fff;
+        }
+
+        .step-node.is-locked .step-btn {
+            background: #f1f5f9;
+        }
+
+        .step-label {
+            margin-top: 0.5rem;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--muted);
+            line-height: 1.25;
+            padding: 0 0.15rem;
+            max-width: 100%;
+        }
+
+        .step-node.is-active .step-label {
+            color: var(--blue);
+        }
+
+        .step-node.is-done .step-label {
+            color: #15803d;
+        }
+
+        .step-hint {
+            font-size: 0.8125rem;
+            color: #b45309;
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            margin-bottom: 1rem;
+            max-width: none;
+        }
+
+        .step-hint[hidden] {
+            display: none;
+        }
+
+        .workflow-finish-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.65rem 0.85rem;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .workflow-finish-toolbar p {
+            margin: 0;
+            font-size: 0.8125rem;
+            color: var(--muted);
+            flex: 1;
+            min-width: 140px;
+        }
+
+        /* Cards */
+        .panel-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 1.5rem 1.75rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            max-width: none;
+            width: 100%;
+        }
+
+        .panel-card--narrow {
+            max-width: 820px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .panel-card--fluid {
+            max-width: none;
+            padding: 1.25rem 1.25rem 1.5rem;
+        }
+
+        @media (min-width: 1024px) {
+            .panel-card--fluid {
+                padding: 1.5rem 2rem 2rem;
+            }
+        }
+
+        .panel-card > h2:first-of-type {
+            font-size: 1.0625rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-card .lead {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .field {
+            margin-bottom: 1rem;
+        }
+
+        .field label,
+        .field .field-label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .field input[type="text"],
+        .field input[type="email"],
+        .field input[type="password"],
+        .field textarea {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.9375rem;
+        }
+
+        .field textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .file-upload-input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        label.btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-upload .file-upload-trigger {
+            margin: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .file-upload-filename {
+            font-size: 0.875rem;
+            color: var(--muted);
+            flex: 1;
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .actions-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background 0.15s, opacity 0.15s;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        /* Fit score */
+        .fit-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0 0.5rem;
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 180px;
+            height: 180px;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress circle {
+            fill: none;
+            stroke-width: 10;
+        }
+
+        .circular-progress .bg-circle {
+            stroke: #e2e8f0;
+        }
+
+        .circular-progress .progress-circle {
+            stroke: var(--blue);
+            stroke-dasharray: 440;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s ease;
+        }
+
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--blue);
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 0.8125rem;
+            color: var(--muted);
+            margin-top: 0.35rem;
+        }
+
+        /* Embedded suggestions (step 3) */
+        .embed-sug-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .embed-sug-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .panel-card .embed-sug-title {
+            font-size: 1.125rem;
+            margin-bottom: 0;
+        }
+
+        .embed-sug-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-embed {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font: inherit;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-embed-accept {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .btn-embed-accept:hover {
+            background: #059669;
+        }
+
+        .btn-embed-reject {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-embed-reject:hover {
+            background: #dc2626;
+        }
+
+        .embed-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .embed-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .embed-resume-panel {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+            min-height: 280px;
+        }
+
+        .embed-panel-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .embed-panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .embed-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .embed-badge-original {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .embed-badge-improved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .embed-resume-body {
+            font-size: 0.875rem;
+            line-height: 1.75;
+            color: #334155;
+        }
+
+        .embed-resume-body h4 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text);
+            margin: 1rem 0 0.5rem;
+        }
+
+        .embed-resume-body h4:first-child {
+            margin-top: 0;
+        }
+
+        .embed-highlight {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.05rem 0.2rem;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .embed-improve-block {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            border-left: 4px solid #10b981;
+            padding: 1rem 1rem 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .embed-improve-block:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .embed-improve-head {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .embed-improve-note {
+            flex: 1;
+            min-width: 160px;
+            font-size: 0.8125rem;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .embed-diff {
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+        }
+
+        .embed-diff-before {
+            color: var(--muted);
+            text-decoration: line-through;
+            margin-bottom: 0.5rem;
+        }
+
+        .embed-diff-after {
+            color: #065f46;
+            font-weight: 500;
+        }
+
+        /* Embedded export (step 5) */
+        .embed-export-head {
+            margin-bottom: 1.25rem;
+        }
+
+        .embed-export-head h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .embed-export-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        @media (max-width: 968px) {
+            .embed-export-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .embed-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem;
+        }
+
+        .embed-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .embed-preview-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .embed-preview-thumb {
+            width: 100%;
+            max-width: 260px;
+            aspect-ratio: 8.5 / 11;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .embed-preview-thumb::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 18%;
+            background: linear-gradient(135deg, var(--blue) 0%, #1d4ed8 100%);
+        }
+
+        .embed-preview-thumb.preview-tailored::before {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        }
+
+        .embed-preview-thumb.preview-modern::before {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .embed-preview-lines {
+            padding: 22% 0.75rem 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .embed-preview-lines .line {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0.4rem 0;
+        }
+
+        /* Live resume text preview (export step) */
+        .embed-preview-doc {
+            width: 100%;
+            max-height: 440px;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .embed-preview-doc-header {
+            flex-shrink: 0;
+            height: 48px;
+        }
+
+        .embed-preview-doc.preview-tailored .embed-preview-doc-header {
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        }
+
+        .embed-preview-doc.preview-modern .embed-preview-doc-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+
+        .embed-preview-resume-pre {
+            margin: 0;
+            padding: 0.65rem 0.75rem 0.85rem;
+            font-size: 0.68rem;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #334155;
+            font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            overflow: auto;
+            flex: 1;
+            min-height: 0;
+            max-height: 392px;
+        }
+
+        .embed-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8125rem;
+        }
+
+        .embed-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .embed-fmt-grid {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .embed-fmt-opt {
+            flex: 1;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .embed-fmt-opt input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .embed-fmt-opt label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+
+        .embed-fmt-opt input:checked + label {
+            border-color: var(--blue);
+            background: var(--blue-soft);
+        }
+
+        .embed-tpl-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .embed-tpl-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .embed-export-format-note {
+            font-size: 0.875rem;
+            color: #334155;
+            margin-bottom: 1rem;
+            padding: 0.65rem 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .embed-export-format-note strong {
+            color: var(--text);
+            margin-right: 0.35rem;
+        }
+
+        .embed-tpl-preview.tailored::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 16%;
+            background: linear-gradient(135deg, #0d9488, #0f766e);
+        }
+
+        .embed-tpl {
+            position: relative;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #fff;
+        }
+
+        .embed-tpl input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .embed-tpl:has(input:checked) {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        .embed-tpl-preview {
+            aspect-ratio: 8.5 / 11;
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            position: relative;
+        }
+
+        .embed-tpl-preview.pro::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 14%;
+            background: #1e293b;
+        }
+
+        .embed-tpl-preview.mod::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 18%;
+            background: linear-gradient(135deg, var(--blue), #1d4ed8);
+        }
+
+        .embed-tpl-name {
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .embed-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .embed-check input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--blue);
+        }
+
+        .embed-file-name {
+            width: 100%;
+            padding: 0.65rem 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.9375rem;
+            margin-bottom: 1rem;
+        }
+
+        .embed-file-name:focus {
+            outline: none;
+            border-color: var(--blue);
+        }
+
+        .btn-download-embed {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--blue);
+            color: #fff !important;
+            border: 2px solid var(--blue);
+            border-radius: 8px;
+            font: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .btn-download-embed:hover {
+            background: var(--blue-hover);
+            border-color: var(--blue-hover);
+            color: #fff !important;
+        }
+
+        .btn-download-embed:focus-visible {
+            outline: 2px solid var(--blue);
+            outline-offset: 2px;
+        }
+
+        .embed-secondary {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            font-size: 0.875rem;
+        }
+
+        .embed-secondary button {
+            background: none;
+            border: none;
+            color: var(--blue);
+            font: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .embed-secondary button:hover {
+            text-decoration: underline;
+        }
+
+        /* Settings */
+        .settings-grid {
+            max-width: 480px;
+        }
+
+        .settings-password-card {
+            margin-top: 1.5rem;
+        }
+
+        /* Recent resumes & cover letters */
+        .recent-files-single {
+            max-width: 920px;
+        }
+
+        .recent-files-table-wrap {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card);
+            overflow: hidden;
+        }
+
+        .recent-files-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+        }
+
+        .recent-files-table th,
+        .recent-files-table td {
+            padding: 0.65rem 0.85rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .recent-files-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .recent-files-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .recent-files-table .cell-actions {
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .recent-files-empty {
+            padding: 1rem 0.85rem;
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        .btn-inline {
+            padding: 0.35rem 0.65rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--blue);
+            margin-left: 0.35rem;
+        }
+
+        .btn-inline:hover {
+            background: var(--blue-soft);
+        }
+
+        .recent-files-toolbar {
+            margin-bottom: 0.75rem;
+        }
+
+        .bug-modal[hidden] {
+            display: none;
+        }
+
+        .bug-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .bug-modal-card {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+            padding: 1.25rem 1.25rem 1rem;
+        }
+
+        .bug-modal-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .bug-modal-text {
+            font-size: 0.9rem;
+            color: #334155;
+            line-height: 1.55;
+            margin-bottom: 0.75rem;
+        }
+
+        .bug-modal-textbox {
+            width: 100%;
+            min-height: 90px;
+            resize: vertical;
+            font: inherit;
+            font-size: 0.9rem;
+            color: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.65rem 0.75rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .bug-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.55rem;
+        }
+
+        /* App alert / confirm (same family as bug modal) */
+        .app-dialog[hidden] {
+            display: none;
+        }
+
+        .app-dialog {
+            position: fixed;
+            inset: 0;
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .app-dialog-card {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+            padding: 1.25rem 1.25rem 1rem;
+        }
+
+        .app-dialog-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .app-dialog-message {
+            font-size: 0.9rem;
+            color: #334155;
+            line-height: 1.55;
+            margin-bottom: 1rem;
+        }
+
+        .app-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                min-height: 100vh;
+                border-right: 1px solid var(--sidebar-border);
+                border-bottom: none;
+            }
+
+            body:not(.sidebar-collapsed) .sidebar {
+                width: min(var(--sidebar-width-expanded), 85vw);
+            }
+
+            .nav-primary {
+                padding: 0.75rem 0.55rem;
+            }
+
+            .main {
+                padding: 1.25rem 1rem 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+        <div class="sidebar-header-row">
+            <a class="sidebar-brand" href="dashboard.html" title="ResumeAI">
+                <span class="brand-icon" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="8" y="10" width="16" height="14" rx="3" fill="#0ea5e9"/>
+                        <circle cx="16" cy="8" r="4" fill="#0369a1"/>
+                        <circle cx="13" cy="7" r="1" fill="#e0f2fe"/>
+                        <circle cx="19" cy="7" r="1" fill="#e0f2fe"/>
+                        <path d="M12 14h8v2h-8z" fill="#bae6fd"/>
+                    </svg>
+                </span>
+                <strong class="sidebar-brand-text">ResumeAI</strong>
+            </a>
+        </div>
+        <nav class="nav-primary" aria-label="Main">
+            <button type="button" class="nav-btn" data-view="resumes" aria-current="page" title="My Resumes">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                </svg>
+                <span class="nav-btn-label">My Resumes</span>
+            </button>
+            <button type="button" class="nav-btn" data-view="letters" title="My Cover Letters">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <path d="M22 6l-10 7L2 6"/>
+                </svg>
+                <span class="nav-btn-label">My Cover Letters</span>
+            </button>
+            <button type="button" class="nav-btn" data-view="library" title="Recent downloads">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                <span class="nav-btn-label">Recent downloads</span>
+            </button>
+            <button type="button" class="nav-btn" data-view="settings" title="Account Settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                </svg>
+                <span class="nav-btn-label">Account Settings</span>
+            </button>
+            <button type="button" class="nav-btn" id="btn-report-bug" title="Report a bug">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>
+                </svg>
+                <span class="nav-btn-label">Report a bug</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div id="react-user-badge"></div>
+            <button type="button" class="btn-logout" id="btn-logout" title="Log out">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+                <span class="btn-logout-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="content-column">
+    <button type="button" class="sidebar-menu-tab" id="btn-sidebar-rail" aria-controls="sidebar" aria-expanded="true" title="Hide or show the side menu">
+        <span class="sidebar-menu-tab-label-expanded">Hide menu</span>
+        <span class="sidebar-menu-tab-label-collapsed">Show menu</span>
+    </button>
+    <main class="main">
+        <!-- My Resumes -->
+        <section class="view is-active" id="view-resumes" aria-labelledby="heading-resumes">
+            <div class="main-header">
+                <h1 id="heading-resumes">My Resumes</h1>
+                <p>Follow each step in order. You can only continue after the current step is completed.</p>
+            </div>
+            <div class="workflow" id="workflow-resume" data-flow="resume"></div>
+        </section>
+
+        <!-- My Cover Letters -->
+        <section class="view" id="view-letters" aria-labelledby="heading-letters">
+            <div class="main-header">
+                <h1 id="heading-letters">My Cover Letters</h1>
+                <p>Same guided flow as resumes—complete each step before moving on.</p>
+            </div>
+            <div class="workflow" id="workflow-cover" data-flow="cover"></div>
+        </section>
+
+        <!-- Downloads you exported from the app (not raw uploads) -->
+        <section class="view" id="view-library" aria-labelledby="heading-library">
+            <div class="main-header">
+                <h1 id="heading-library">Recent downloads</h1>
+                <p>Up to 10 last files you actually downloaded — improved resumes and cover letters from export. Original uploads are not listed here.</p>
+            </div>
+            <div class="recent-files-toolbar">
+                <button type="button" class="btn btn-secondary" id="btn-library-refresh">Refresh list</button>
+            </div>
+            <div class="recent-files-single">
+                <div class="recent-files-table-wrap" id="library-exports-box">
+                    <p class="recent-files-empty" id="library-exports-loading">Loading…</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Account Settings -->
+        <section class="view" id="view-settings" aria-labelledby="heading-settings">
+            <div class="main-header">
+                <h1 id="heading-settings">Account Settings</h1>
+                <p>Manage your profile and preferences.</p>
+            </div>
+            <div class="panel-card panel-card--narrow settings-grid">
+                <h2>Profile</h2>
+                <p class="lead">Update how we address you and where we send notifications.</p>
+                <div class="field">
+                    <label for="set-name">Display name</label>
+                    <input type="text" id="set-name" placeholder="Your name" autocomplete="name">
+                </div>
+                <div class="field">
+                    <label for="set-email">Email</label>
+                    <input type="email" id="set-email" placeholder="you@example.com" autocomplete="email">
+                </div>
+                <div class="actions-row">
+                    <button type="button" class="btn btn-primary" id="btn-save-settings">Save changes</button>
+                </div>
+            </div>
+
+            <div class="panel-card panel-card--narrow settings-grid settings-password-card">
+                <h2>Reset password</h2>
+                <p class="lead">Use a strong password you do not reuse on other sites.</p>
+                <div class="field">
+                    <label for="set-current-pass">Current password</label>
+                    <input type="password" id="set-current-pass" autocomplete="current-password" placeholder="••••••••">
+                </div>
+                <div class="field">
+                    <label for="set-new-pass">New password</label>
+                    <input type="password" id="set-new-pass" autocomplete="new-password" placeholder="••••••••" minlength="8">
+                </div>
+                <div class="field">
+                    <label for="set-confirm-pass">Confirm new password</label>
+                    <input type="password" id="set-confirm-pass" autocomplete="new-password" placeholder="••••••••" minlength="8">
+                </div>
+                <div class="actions-row">
+                    <button type="button" class="btn btn-primary" id="btn-reset-password">Update password</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    </div>
+
+    <div class="bug-modal" id="bug-modal" hidden>
+        <div class="bug-modal-card" role="dialog" aria-modal="true" aria-labelledby="bug-modal-title">
+            <h3 class="bug-modal-title" id="bug-modal-title">Report a bug</h3>
+            <p class="bug-modal-text">Your report will be sended to resumeAI@gmail.com</p>
+            <textarea id="bug-modal-input" class="bug-modal-textbox" placeholder="Describe the bug (steps, expected result, actual result)..."></textarea>
+            <div class="bug-modal-actions">
+                <button type="button" class="btn btn-secondary" id="bug-modal-close">Cancel</button>
+                <button type="button" class="btn btn-primary" id="bug-modal-send">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-dialog" id="app-dialog" hidden>
+        <div
+            class="app-dialog-card"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="app-dialog-title"
+            aria-describedby="app-dialog-message"
+        >
+            <h3 class="app-dialog-title" id="app-dialog-title">ResumeAI</h3>
+            <p class="app-dialog-message" id="app-dialog-message"></p>
+            <div class="app-dialog-actions">
+                <button type="button" class="btn btn-secondary" id="app-dialog-cancel" hidden>Cancel</button>
+                <button type="button" class="btn btn-primary" id="app-dialog-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <template id="workflow-template">
+        <div class="step-track-wrap">
+            <div class="step-track" role="tablist" aria-label="Workflow steps"></div>
+        </div>
+        <p class="step-hint" data-el="hint" hidden></p>
+        <div class="step-panels"></div>
+    </template>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="js/react-ui.js"></script>
+    <script>
+        (function () {
+            var API_BASE_URL = (function () {
+                if (typeof window === 'undefined' || !window.location) {
+                    return 'http://127.0.0.1:5000';
+                }
+                var h = window.location.hostname;
+                if (!h || window.location.protocol === 'file:') {
+                    return 'http://127.0.0.1:5000';
+                }
+                return window.location.protocol + '//' + h + ':5000';
+            })();
+            var authToken = localStorage.getItem('jobsuit_token');
+            var activeUserId = '';
+            try {
+                var userObj = JSON.parse(localStorage.getItem('jobsuit_user') || '{}');
+                activeUserId = userObj && userObj.id ? String(userObj.id) : '';
+            } catch (e) {}
+            if (!activeUserId) {
+                activeUserId = localStorage.getItem('jobsuit_active_user') || 'anonymous';
+            }
+            var STORAGE_PREFIX = 'jobsuit_flow_' + activeUserId + '_';
+            if (!authToken) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            async function apiRequest(path, options) {
+                var requestOptions = options || {};
+                requestOptions.headers = requestOptions.headers || {};
+                requestOptions.headers.Authorization = 'Bearer ' + authToken;
+                var response = await fetch(API_BASE_URL + path, requestOptions);
+                var data = await response.json().catch(function () { return {}; });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('jobsuit_token');
+                        localStorage.removeItem('jobsuit_user');
+                        localStorage.removeItem('jobsuit_profile');
+                        window.location.href = 'index.html';
+                        throw new Error('Session expired. Please sign in again.');
+                    }
+                    throw new Error(data.error || 'Request failed');
+                }
+                return data;
+            }
+
+            function showAppDialog(opts) {
+                opts = opts || {};
+                return new Promise(function (resolve) {
+                    var overlay = document.getElementById('app-dialog');
+                    var titleEl = document.getElementById('app-dialog-title');
+                    var msgEl = document.getElementById('app-dialog-message');
+                    var btnOk = document.getElementById('app-dialog-ok');
+                    var btnCancel = document.getElementById('app-dialog-cancel');
+                    var confirmMode = !!opts.confirm;
+
+                    titleEl.textContent = opts.title != null ? opts.title : 'ResumeAI';
+                    msgEl.textContent = opts.message != null ? String(opts.message) : '';
+                    btnCancel.hidden = !confirmMode;
+                    btnOk.textContent = opts.okLabel || 'OK';
+                    btnCancel.textContent = opts.cancelLabel || 'Cancel';
+
+                    function finish(value) {
+                        overlay.hidden = true;
+                        btnOk.removeEventListener('click', onOk);
+                        btnCancel.removeEventListener('click', onCancel);
+                        overlay.removeEventListener('click', onBackdrop);
+                        document.removeEventListener('keydown', onKey);
+                        resolve(value);
+                    }
+                    function onOk() {
+                        finish(true);
+                    }
+                    function onCancel() {
+                        finish(false);
+                    }
+                    function onBackdrop(e) {
+                        if (e.target === overlay) {
+                            finish(confirmMode ? false : true);
+                        }
+                    }
+                    function onKey(e) {
+                        if (e.key === 'Escape') {
+                            finish(confirmMode ? false : true);
+                        }
+                    }
+                    btnOk.addEventListener('click', onOk);
+                    btnCancel.addEventListener('click', onCancel);
+                    overlay.addEventListener('click', onBackdrop);
+                    document.addEventListener('keydown', onKey);
+                    overlay.hidden = false;
+                    requestAnimationFrame(function () {
+                        btnOk.focus();
+                    });
+                });
+            }
+
+            function appAlert(message, title) {
+                return showAppDialog({ message: message, title: title, confirm: false });
+            }
+
+            function appConfirm(message, title) {
+                return showAppDialog({ message: message, title: title, confirm: true });
+            }
+
+            var RESUME_STEP_META = [
+                { id: 1, short: 'Upload & job', title: 'Upload your resume and paste your job posting', desc: 'Add your resume file and the full job description so we can analyze the match.' },
+                { id: 2, short: 'Fit score', title: 'Get your fit score', desc: 'Review how well your resume aligns with this role.' },
+                { id: 3, short: 'Suggestions', title: 'Resume improvement suggestions', desc: 'See targeted changes to strengthen your resume.' },
+                { id: 4, short: 'New fit score', title: 'New fit score', desc: 'After improvements, view your updated alignment score.' },
+                { id: 5, short: 'Export', title: 'Export', desc: 'Download or share your polished resume.' }
+            ];
+
+            var COVER_STEP_META = [
+                { id: 1, short: 'Job & Resume', title: 'Paste the job posting', desc: 'Paste the job description. Optionally also paste your resume to personalise the letter with your real experience.' },
+                { id: 2, short: 'Generate', title: 'Cover letter', desc: 'AI drafts a tailored letter. If you provided your resume, it will be personalised with your real skills and achievements.' },
+                { id: 3, short: 'Export', title: 'Export', desc: 'Download your cover letter as PDF or DOCX.' }
+            ];
+
+            function loadState(flow) {
+                try {
+                    var raw = localStorage.getItem(STORAGE_PREFIX + flow);
+                    if (!raw) return { completed: 0, current: 1, jobText: '', fileName: '', resumeId: '', jobDescriptionId: '' };
+                    var o = JSON.parse(raw);
+                    if (typeof o.completed !== 'number') o.completed = 0;
+                    if (typeof o.current !== 'number') o.current = 1;
+                    if (typeof o.jobText !== 'string') o.jobText = '';
+                    if (typeof o.fileName !== 'string') o.fileName = '';
+                    o.resumeId =
+                        o.resumeId !== undefined && o.resumeId !== null && o.resumeId !== ''
+                            ? String(o.resumeId)
+                            : '';
+                    o.jobDescriptionId =
+                        o.jobDescriptionId !== undefined &&
+                        o.jobDescriptionId !== null &&
+                        o.jobDescriptionId !== ''
+                            ? String(o.jobDescriptionId)
+                            : '';
+                    return o;
+                } catch (e) {
+                    return { completed: 0, current: 1, jobText: '', fileName: '', resumeId: '', jobDescriptionId: '' };
+                }
+            }
+
+            function saveState(flow, state) {
+                localStorage.setItem(STORAGE_PREFIX + flow, JSON.stringify(state));
+            }
+
+            function getStepMeta(kind) {
+                return kind === 'cover' ? COVER_STEP_META : RESUME_STEP_META;
+            }
+
+            function maxAccessible(completed, totalSteps) {
+                return Math.min(completed + 1, totalSteps);
+            }
+
+            function escapeHtml(unsafe) {
+                if (unsafe == null) {
+                    return '';
+                }
+                return String(unsafe)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
+            function htmlCoverStep2(flow) {
+                return (
+                    '<h2>' + COVER_STEP_META[1].title + '</h2>' +
+                    '<p class="lead">' + COVER_STEP_META[1].desc + '</p>' +
+                    '<div class="field">' +
+                    '<label for="cl-generated-' + flow + '">Cover letter</label>' +
+                    '<textarea id="cl-generated-' + flow + '" rows="16" spellcheck="true" placeholder="Your letter will appear here…"></textarea>' +
+                    '</div>' +
+                    '<div class="actions-row">' +
+                    '<button type="button" class="btn btn-secondary" data-cover-gen="' + flow + '">Regenerate</button>' +
+                    '<button type="button" class="btn btn-primary" data-complete="2" data-cover-ready="1" hidden>Continue</button>' +
+                    '</div>' +
+                    '<p class="lead" data-cover-status style="margin-top:0.75rem;color:var(--muted)"></p>'
+                );
+            }
+
+            function htmlSuggestions(flow, kind) {
+                var sub = kind === 'cover'
+                    ? 'Review AI-suggested upgrades for your materials before tailoring your cover letter.'
+                    : 'Compare your original resume with the AI-improved version and accept or reject each change.';
+                return (
+                    '<div class="embed-sug-toolbar">' +
+                    '<h2 class="embed-sug-title">Resume improvement suggestions</h2>' +
+                    '<div class="embed-sug-actions">' +
+                    '<button type="button" class="btn-embed btn-embed-accept" data-sug-accept="' + flow + '">Accept All Changes</button>' +
+                    '<button type="button" class="btn-embed btn-embed-reject" data-sug-reject="' + flow + '">Reject All</button>' +
+                    '</div></div>' +
+                    '<p class="lead" style="margin-bottom:1.25rem">' + sub + '</p>' +
+                    '<div class="embed-comparison">' +
+                    '<div class="embed-resume-panel">' +
+                    '<div class="embed-panel-head"><span class="embed-panel-title">Original Resume</span>' +
+                    '<span class="embed-badge embed-badge-original">Original</span></div>' +
+                    '<div class="embed-resume-body">' +
+                    '<h4>Professional Summary</h4><p>Software engineer with experience in web development. Worked on various projects and helped build applications.</p>' +
+                    '<h4>Work Experience</h4><p><strong>Senior Developer</strong> | Tech Company | 2020–2023</p>' +
+                    '<p>Developed web applications using JavaScript and React. Fixed bugs and added features. Worked with a team of developers.</p>' +
+                    '<h4>Skills</h4><p>JavaScript, React, Node.js, HTML, CSS</p>' +
+                    '</div></div>' +
+                    '<div class="embed-resume-panel">' +
+                    '<div class="embed-panel-head"><span class="embed-panel-title">AI-Improved Resume</span>' +
+                    '<span class="embed-badge embed-badge-improved">Improved</span></div>' +
+                    '<div class="embed-resume-body">' +
+                    '<h4>Professional Summary</h4><p>Results-driven software engineer with <span class="embed-highlight">5+ years of experience</span> specializing in full-stack web development. <span class="embed-highlight">Led development of scalable applications</span> serving <span class="embed-highlight">50,000+ users</span>.</p>' +
+                    '<h4>Work Experience</h4><p><strong>Senior Developer</strong> | Tech Company | 2020–2023</p>' +
+                    '<p><span class="embed-highlight">Architected and developed</span> responsive web applications using JavaScript and React, <span class="embed-highlight">reducing load times by 40%</span>. <span class="embed-highlight">Collaborated with cross-functional teams</span> of 8+ developers.</p>' +
+                    '<h4>Skills</h4><p>JavaScript (ES6+), React, Node.js, HTML5, CSS3, <span class="embed-highlight">TypeScript, RESTful APIs, Git, AWS</span></p>' +
+                    '</div></div></div>' +
+                    '<div class="embed-improve-block">' +
+                    '<div class="embed-improve-head"><p class="embed-improve-note">Added quantifiable metrics and years of experience to strengthen the summary.</p>' +
+                    '<div class="embed-sug-actions"><button type="button" class="btn btn-secondary" style="padding:0.4rem 0.75rem;font-size:0.75rem">Accept</button>' +
+                    '<button type="button" class="btn btn-secondary" style="padding:0.4rem 0.75rem;font-size:0.75rem">Reject</button></div></div>' +
+                    '<div class="embed-diff"><div class="embed-diff-before">Software engineer with experience in web development…</div>' +
+                    '<div class="embed-diff-after">Results-driven software engineer with 5+ years of experience specializing in full-stack web development…</div></div></div>' +
+                    '<div class="embed-improve-block">' +
+                    '<div class="embed-improve-head"><p class="embed-improve-note">Enhanced bullet points with action verbs and measurable outcomes.</p>' +
+                    '<div class="embed-sug-actions"><button type="button" class="btn btn-secondary" style="padding:0.4rem 0.75rem;font-size:0.75rem">Accept</button>' +
+                    '<button type="button" class="btn btn-secondary" style="padding:0.4rem 0.75rem;font-size:0.75rem">Reject</button></div></div>' +
+                    '<div class="embed-diff"><div class="embed-diff-before">Developed web applications using JavaScript and React…</div>' +
+                    '<div class="embed-diff-after">Architected and developed responsive web applications… reducing load times by 40%.</div></div></div>' +
+                    '<div class="actions-row" style="margin-top:1.5rem">' +
+                    '<button type="button" class="btn btn-primary" data-complete="3">Mark step complete</button></div>'
+                );
+            }
+
+            function htmlExport(flow, finalStep, docKind, improvedResumeText, jobTextForPreview, templateChoice) {
+                docKind = docKind || 'resume';
+                if (docKind === 'cover') {
+                    return (
+                        '<div class="embed-export-head"><h2>Export your cover letter</h2>' +
+                        '<p class="lead">Download as PDF or Word (DOCX). Layout is simple body text suited to letters.</p></div>' +
+                        '<div class="embed-card" style="margin-bottom:1rem">' +
+                        '<h3>Format</h3>' +
+                        '<div class="embed-fmt-grid">' +
+                        '<div class="embed-fmt-opt">' +
+                        '<input type="radio" id="exp-format-pdf-' + flow + '" name="exp-format-' + flow + '" value="pdf" checked>' +
+                        '<label for="exp-format-pdf-' + flow + '">PDF</label>' +
+                        '</div>' +
+                        '<div class="embed-fmt-opt">' +
+                        '<input type="radio" id="exp-format-docx-' + flow + '" name="exp-format-' + flow + '" value="docx">' +
+                        '<label for="exp-format-docx-' + flow + '">DOCX</label>' +
+                        '</div>' +
+                        '</div></div>' +
+                        '<div class="embed-card" style="margin-bottom:1rem">' +
+                        '<label class="field" style="margin:0"><span style="font-weight:600;font-size:0.9375rem">File name</span>' +
+                        '<input type="text" class="embed-file-name" id="exp-fname-' + flow + '" value="Cover_letter"></label></div>' +
+                        '<button type="button" class="btn-download-embed" data-exp-dl="' + flow + '">Download cover letter</button>' +
+                        '<div class="embed-secondary">' +
+                        '<button type="button" data-exp-sec="' + flow + '">Email to myself</button>' +
+                        '<button type="button" data-exp-cloud="' + flow + '">Save to cloud</button></div>' +
+                        '<div class="actions-row" style="margin-top:1.5rem">' +
+                        '<button type="button" class="btn btn-secondary" data-complete="' + finalStep + '">Mark flow complete</button></div>'
+                    );
+                }
+
+                var improved =
+                    improvedResumeText != null && String(improvedResumeText).replace(/\s/g, '').length > 0
+                        ? String(improvedResumeText)
+                        : '';
+                var tplClass = templateChoice === 'modern' ? 'preview-modern' : 'preview-tailored';
+
+                var previewName = 'John Doe';
+                var previewRole = 'Senior Software Engineer';
+                if (improved) {
+                    var nameLine = improved
+                        .split(/\r?\n/)
+                        .map(function (ln) {
+                            return ln.trim();
+                        })
+                        .filter(Boolean)[0];
+                    if (nameLine) {
+                        previewName = nameLine.length > 52 ? nameLine.slice(0, 49) + '…' : nameLine;
+                    }
+                }
+                var jobSrc = jobTextForPreview != null ? String(jobTextForPreview) : '';
+                if (jobSrc) {
+                    var roleLine = jobSrc
+                        .split(/\r?\n/)
+                        .map(function (ln) {
+                            return ln.trim();
+                        })
+                        .filter(Boolean)[0];
+                    if (roleLine) {
+                        previewRole = roleLine.length > 64 ? roleLine.slice(0, 61) + '…' : roleLine;
+                    }
+                }
+
+                var previewBodyHtml;
+                if (improved) {
+                    previewBodyHtml =
+                        '<div class="embed-preview-doc ' +
+                        tplClass +
+                        '" data-export-preview="' +
+                        flow +
+                        '">' +
+                        '<div class="embed-preview-doc-header" aria-hidden="true"></div>' +
+                        '<pre class="embed-preview-resume-pre">' +
+                        escapeHtml(improved) +
+                        '</pre></div>';
+                } else {
+                    previewBodyHtml =
+                        '<div class="embed-preview-thumb ' +
+                        tplClass +
+                        '" data-export-preview="' +
+                        flow +
+                        '"><div class="embed-preview-lines">' +
+                        '<div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div>' +
+                        '</div></div>';
+                }
+
+                var previewLastModified = new Date().toLocaleDateString(undefined, {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                var tailoredChecked = templateChoice === 'modern' ? '' : ' checked';
+                var modernChecked = templateChoice === 'modern' ? ' checked' : '';
+                return (
+                    '<div class="embed-export-head"><h2>Export your resume</h2>' +
+                    '<p class="lead">Export as PDF, pick a template, then download—everything stays in this workspace.</p></div>' +
+                    '<div class="embed-export-layout">' +
+                    '<div class="embed-card">' +
+                    '<h3>Preview</h3><div class="embed-preview-box">' +
+                    previewBodyHtml +
+                    '</div>' +
+                    '<div class="embed-detail-row"><span class="detail-label" style="color:var(--muted)">Name</span><span style="font-weight:600">' +
+                    escapeHtml(previewName) +
+                    '</span></div>' +
+                    '<div class="embed-detail-row"><span class="detail-label" style="color:var(--muted)">Target role</span><span style="font-weight:600">' +
+                    escapeHtml(previewRole) +
+                    '</span></div>' +
+                    '<div class="embed-detail-row"><span class="detail-label" style="color:var(--muted)">Last modified</span><span style="font-weight:600">' +
+                    previewLastModified +
+                    '</span></div>' +
+                    '</div>' +
+                    '<div class="embed-card">' +
+                    '<h3>Export options</h3>' +
+                    '<p class="embed-export-format-note"><strong>Format:</strong> Improved content export</p>' +
+                    '<div class="embed-fmt-grid" style="margin-bottom:1rem">' +
+                    '<div class="embed-fmt-opt">' +
+                    '<input type="radio" id="exp-format-pdf-' + flow + '" name="exp-format-' + flow + '" value="pdf" checked>' +
+                    '<label for="exp-format-pdf-' + flow + '">PDF</label>' +
+                    '</div>' +
+                    '<div class="embed-fmt-opt">' +
+                    '<input type="radio" id="exp-format-docx-' + flow + '" name="exp-format-' + flow + '" value="docx">' +
+                    '<label for="exp-format-docx-' + flow + '">DOCX</label>' +
+                    '</div>' +
+                    '</div>' +
+                    '<p style="font-size:0.875rem;font-weight:600;margin-bottom:0.75rem;color:#334155">Choose template</p>' +
+                    '<div class="embed-tpl-grid">' +
+                    '<label class="embed-tpl"><input type="radio" name="exp-tpl-' + flow + '" value="tailored"' + tailoredChecked + '><div class="embed-tpl-preview tailored"></div><div class="embed-tpl-name">Tailored</div></label>' +
+                    '<label class="embed-tpl"><input type="radio" name="exp-tpl-' + flow + '" value="modern"' + modernChecked + '><div class="embed-tpl-preview mod"></div><div class="embed-tpl-name">Modern</div></label>' +
+                    '</div>' +
+                    '</div></div>' +
+                    '<div class="embed-card" style="margin-bottom:1rem">' +
+                    '<label class="field" style="margin:0"><span style="font-weight:600;font-size:0.9375rem">File name</span>' +
+                    '<input type="text" class="embed-file-name" id="exp-fname-' + flow + '" value="John_Doe_Resume_Senior_Software_Engineer"></label></div>' +
+                    '<button type="button" class="btn-download-embed" data-exp-dl="' + flow + '">Download resume</button>' +
+                    '<div class="embed-secondary">' +
+                    '<button type="button" data-exp-sec="' + flow + '">Email to myself</button>' +
+                    '<button type="button" data-exp-cloud="' + flow + '">Save to cloud</button></div>' +
+                    '<div class="actions-row" style="margin-top:1.5rem">' +
+                    '<button type="button" class="btn btn-secondary" data-complete="' + finalStep + '">Mark flow complete</button></div>'
+                );
+            }
+
+            function buildWorkflow(container, flow, kind) {
+                var state = loadState(flow);
+                var analyzeResponse = null;
+                var applyResponse = null;
+                var fitAnalysisLoading = false;
+                var fitAnalysisFailed = false;
+                var coverLetterText = '';
+                var coverHadResult = false; // true after a successful generation (avoids auto-retry if user clears the textarea)
+                var coverResumeText = '';       // resume text from step 1 (optional)
+                var coverGenLoading = false;
+                var coverGenFailed = false;
+                var coverGenSeq = 0;
+                var coverGenAbortCtl = null;
+                var coverGenAbortTimer = null;
+                var stepMeta = getStepMeta(kind);
+                var totalSteps = stepMeta.length;
+                var template = document.getElementById('workflow-template');
+                var root = template.content.cloneNode(true);
+                var track = root.querySelector('.step-track');
+                var hint = root.querySelector('[data-el="hint"]');
+                var panelsParent = root.querySelector('.step-panels');
+
+                var stepNodes = [];
+                var panelEls = [];
+
+                function mountPanelFitScore(panel, percent, label, progressMarker) {
+                    if (!panel) return;
+                    var root = panel.querySelector('[data-fit-score-root]');
+                    if (root && window.ResumeAI) {
+                        ResumeAI.mountFitScore(root, {
+                            percent: percent,
+                            label: label,
+                            marker: progressMarker
+                        });
+                    }
+                }
+
+                function renderHint() {
+                    var need = state.completed + 1;
+                    if (state.current > maxAccessible(state.completed, totalSteps)) {
+                        hint.hidden = false;
+                        hint.textContent = 'Complete step ' + need + ' before opening later steps.';
+                    } else {
+                        hint.hidden = true;
+                    }
+                }
+
+                function syncProgressCircle(circle, percent) {
+                    var r = 70;
+                    var c = 2 * Math.PI * r;
+                    var offset = c * (1 - percent / 100);
+                    circle.style.strokeDasharray = String(c);
+                    circle.style.strokeDashoffset = String(offset);
+                }
+
+                stepMeta.forEach(function (meta) {
+                    var node = document.createElement('div');
+                    node.className = 'step-node';
+                    node.setAttribute('role', 'presentation');
+
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'step-btn';
+                    btn.textContent = String(meta.id);
+                    btn.setAttribute('aria-label', 'Step ' + meta.id + ': ' + meta.title);
+                    btn.addEventListener('click', function () {
+                        var maxA = maxAccessible(state.completed, totalSteps);
+                        if (meta.id <= maxA) {
+                            state.current = meta.id;
+                            saveState(flow, state);
+                            updateUI();
+                        }
+                    });
+
+                    var lab = document.createElement('span');
+                    lab.className = 'step-label';
+                    lab.textContent = meta.short;
+
+                    node.appendChild(btn);
+                    node.appendChild(lab);
+                    track.appendChild(node);
+                    stepNodes.push({ node: node, btn: btn, meta: meta });
+                });
+
+                // Step 1
+                var p1 = document.createElement('div');
+                p1.className = 'panel-card panel-card--narrow';
+                p1.dataset.stepPanel = '1';
+                p1.hidden = true;
+                p1.innerHTML =
+                    kind === 'cover'
+                        ? '<h2>' + stepMeta[0].title + '</h2>' +
+                          '<p class="lead">' + stepMeta[0].desc + '</p>' +
+                          '<div class="field"><label for="f-' + flow + '-job">Job posting <span style="color:var(--danger)">*</span></label>' +
+                          '<textarea id="f-' + flow + '-job" placeholder="Paste the full job description here…"></textarea></div>' +
+                          '<div class="field" style="margin-top:1rem">' +
+                          '<label for="f-' + flow + '-resume" style="display:flex;gap:.4rem;align-items:center">' +
+                          'Your resume <span style="font-weight:400;color:var(--muted);font-size:.85em">(optional — personalises the letter)</span></label>' +
+                          '<textarea id="f-' + flow + '-resume" placeholder="Paste your resume text here to get a personalised cover letter…" style="min-height:120px"></textarea></div>' +
+                          '<div class="actions-row">' +
+                          '<button type="button" class="btn btn-primary" data-complete="1">Continue</button></div>'
+                        : '<h2>' + stepMeta[0].title + '</h2>' +
+                          '<p class="lead">' + stepMeta[0].desc + '</p>' +
+                          '<div class="field">' +
+                          '<span class="field-label">Resume file</span>' +
+                          '<div class="file-upload">' +
+                          '<input type="file" class="file-upload-input" id="f-' + flow + '-file" accept=".pdf,.doc,.docx,application/pdf">' +
+                          '<label for="f-' + flow + '-file" class="btn btn-primary file-upload-trigger">Choose file</label>' +
+                          '<span class="file-upload-filename" data-resume-filename>No file selected</span>' +
+                          '</div></div>' +
+                          '<div class="field"><label for="f-' + flow + '-job">Job posting</label>' +
+                          '<textarea id="f-' + flow + '-job" placeholder="Paste the job description here..."></textarea></div>' +
+                          '<div class="actions-row">' +
+                          '<button type="button" class="btn btn-primary" data-complete="1">Mark step complete</button></div>';
+                panelsParent.appendChild(p1);
+
+                var p2 = document.createElement('div');
+                p2.dataset.stepPanel = '2';
+                p2.hidden = true;
+
+                var p3 = document.createElement('div');
+                p3.dataset.stepPanel = '3';
+                p3.hidden = true;
+
+                var p4 = null;
+                var p5 = null;
+
+                if (kind === 'cover') {
+                    p2.className = 'panel-card panel-card--fluid';
+                    p2.innerHTML = htmlCoverStep2(flow);
+                    panelsParent.appendChild(p2);
+
+                    p3.className = 'panel-card panel-card--fluid';
+                    p3.innerHTML = htmlExport(flow, 3, 'cover');
+                    panelsParent.appendChild(p3);
+
+                    panelEls = [p1, p2, p3];
+                } else {
+                    p4 = document.createElement('div');
+                    p4.dataset.stepPanel = '4';
+                    p4.hidden = true;
+                    // Resume step 2 — fit score (initial)
+                    p2.className = 'panel-card panel-card--narrow';
+                    p2.innerHTML =
+                        '<h2>' + stepMeta[1].title + '</h2>' +
+                        '<p class="lead">' + stepMeta[1].desc + '</p>' +
+                        '<div data-fit-score-root></div>' +
+                        '<div class="actions-row fit-score-status"><p class="lead" style="margin:0;color:var(--muted)">One moment…</p></div>';
+                    mountPanelFitScore(p2, null, 'Fit Score', 'initial');
+                    panelsParent.appendChild(p2);
+
+                    // Resume step 3 — suggestions
+                    p3.className = 'panel-card panel-card--fluid';
+                    p3.innerHTML = htmlSuggestions(flow, kind);
+                    panelsParent.appendChild(p3);
+
+                    // Resume step 4 — new fit score
+                    p4.className = 'panel-card panel-card--narrow';
+                    p4.innerHTML =
+                        '<h2>' + stepMeta[3].title + '</h2>' +
+                        '<p class="lead">' + stepMeta[3].desc + '</p>' +
+                        '<div data-fit-score-root></div>' +
+                        '<div class="actions-row">' +
+                        '<button type="button" class="btn btn-primary" data-complete="4">Mark step complete</button></div>';
+                    mountPanelFitScore(p4, null, 'Updated Fit Score', 'new');
+                    panelsParent.appendChild(p4);
+
+                    // Resume step 5 — export
+                    p5 = document.createElement('div');
+                    p5.className = 'panel-card panel-card--fluid';
+                    p5.dataset.stepPanel = '5';
+                    p5.hidden = true;
+                    panelsParent.appendChild(p5);
+
+                    function refreshResumeExportPanel() {
+                        if (kind !== 'resume' || !p5) {
+                            return;
+                        }
+                        var fnameKeep = '';
+                        var tplKeep = 'tailored';
+                        var fmtKeep = 'pdf';
+                        var fnKeep = p5.querySelector('#exp-fname-' + flow);
+                        if (fnKeep && fnKeep.value) {
+                            fnameKeep = fnKeep.value;
+                        }
+                        var tplRadio = p5.querySelector('input[name="exp-tpl-' + flow + '"]:checked');
+                        if (tplRadio) {
+                            tplKeep = tplRadio.value;
+                        }
+                        var fmtRadio = p5.querySelector('input[name="exp-format-' + flow + '"]:checked');
+                        if (fmtRadio) {
+                            fmtKeep = fmtRadio.value;
+                        }
+                        var impr =
+                            applyResponse && applyResponse.improvedResumeText
+                                ? applyResponse.improvedResumeText
+                                : '';
+                        p5.innerHTML = htmlExport(flow, 5, 'resume', impr, state.jobText, tplKeep);
+                        var fn2 = p5.querySelector('#exp-fname-' + flow);
+                        if (fn2 && fnameKeep) {
+                            fn2.value = fnameKeep;
+                        }
+                        var tplFix = p5.querySelector('input[name="exp-tpl-' + flow + '"][value="' + tplKeep + '"]');
+                        if (tplFix) {
+                            tplFix.checked = true;
+                        }
+                        var fmtFix = p5.querySelector('input[name="exp-format-' + flow + '"][value="' + fmtKeep + '"]');
+                        if (fmtFix) {
+                            fmtFix.checked = true;
+                        }
+                        bindCompleteButtons();
+                    }
+
+                    refreshResumeExportPanel();
+
+                    panelEls = [p1, p2, p3, p4, p5];
+                }
+
+                var fileInput = p1.querySelector('input[type="file"]');
+                var jobInput = p1.querySelector('textarea');
+
+                function syncResumeFileNameDisplay() {
+                    var el = p1.querySelector('[data-resume-filename]');
+                    if (!el || !fileInput) return;
+                    if (fileInput.files && fileInput.files.length > 0) {
+                        el.textContent = fileInput.files[0].name;
+                        return;
+                    }
+                    if (state.fileName) {
+                        el.textContent = state.fileName;
+                        return;
+                    }
+                    el.textContent = 'No file selected';
+                }
+
+                async function uploadStepOneData() {
+                    var file = fileInput.files[0];
+                    if (!file) {
+                        return null;
+                    }
+                    var resumeForm = new FormData();
+                    resumeForm.append('resume', file);
+                    var resume = await apiRequest('/api/resumes/upload', {
+                        method: 'POST',
+                        body: resumeForm
+                    });
+                    var job = await apiRequest('/api/jobs', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: 'Uploaded from dashboard',
+                            rawText: jobInput.value.trim()
+                        })
+                    });
+                    return {
+                        resumeId: resume.id,
+                        jobDescriptionId: job.id
+                    };
+                }
+
+                async function uploadCoverJobOnly() {
+                    var job = await apiRequest('/api/jobs', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title: 'Cover letter — target role',
+                            rawText: jobInput.value.trim()
+                        })
+                    });
+                    // Read optional resume textarea (same panel, id f-<flow>-resume)
+                    var resumeInput = p1.querySelector('#f-' + flow + '-resume');
+                    var coverResumeText = resumeInput ? resumeInput.value.trim() : '';
+                    return { jobDescriptionId: String(job.id), coverResumeText: coverResumeText };
+                }
+
+                function renderSuggestionPanel(suggestions) {
+                    p3.innerHTML =
+                        '<div class="embed-sug-toolbar">' +
+                        '<h2 class="embed-sug-title">Resume improvement suggestions</h2>' +
+                        '<div class="embed-sug-actions">' +
+                        '<button type="button" class="btn-embed btn-embed-accept" data-sug-accept="' + flow + '">Accept All Changes</button>' +
+                        '<button type="button" class="btn-embed btn-embed-reject" data-sug-reject="' + flow + '">Reject All</button>' +
+                        '</div></div>' +
+                        '<p class="lead" style="margin-bottom:1rem">Select which AI suggestions to apply before recalculating the fit score.</p>' +
+                        '<div data-suggestion-list-root></div>' +
+                        '<div class="actions-row" style="margin-top:1.25rem">' +
+                        '<button type="button" class="btn btn-primary" data-complete="3">Apply selected and continue</button></div>';
+                    var listRoot = p3.querySelector('[data-suggestion-list-root]');
+                    if (window.ResumeAI && listRoot) {
+                        var sel = {};
+                        (suggestions || []).forEach(function (s) {
+                            sel[s.id] = true;
+                        });
+                        ResumeAI.mountSuggestionList(listRoot, { suggestions: suggestions || [], selections: sel });
+                    }
+                }
+
+                function renderScorePanel(panel, percent, label, buttonStep, progressMarker, scoreReady) {
+                    var readyAttr = scoreReady ? ' data-score-ready="1"' : '';
+                    panel.innerHTML =
+                        '<h2>' + label + '</h2>' +
+                        '<div data-fit-score-root></div>' +
+                        '<div class="actions-row"><button type="button" class="btn btn-primary" data-complete="' + buttonStep + '"' + readyAttr + '>Continue</button></div>';
+                    mountPanelFitScore(panel, percent, label, progressMarker);
+                }
+
+                function syncScorePanelFromResponse(panel, overall, progressMarker) {
+                    if (overall === undefined || overall === null || Number.isNaN(Number(overall))) return;
+                    var label =
+                        progressMarker === 'new' ? 'Updated Fit Score' : 'Fit Score';
+                    mountPanelFitScore(panel, overall, label, progressMarker);
+                }
+
+                function setP2FitLoading() {
+                    p2.className = 'panel-card panel-card--narrow';
+                    p2.innerHTML =
+                        '<h2>' + stepMeta[1].title + '</h2>' +
+                        '<p class="lead">' + stepMeta[1].desc + '</p>' +
+                        '<div data-fit-score-root></div>' +
+                        '<div class="actions-row fit-score-status"><p class="lead" style="margin:0">Calculating your fit score…</p></div>';
+                    mountPanelFitScore(p2, null, 'Fit Score', 'initial');
+                }
+
+                function setP2FitError() {
+                    p2.className = 'panel-card panel-card--narrow';
+                    p2.innerHTML =
+                        '<h2>' + stepMeta[1].title + '</h2>' +
+                        '<p class="lead">' + stepMeta[1].desc + '</p>' +
+                        '<div data-fit-score-root></div>' +
+                        '<div class="actions-row" style="flex-direction:column;align-items:stretch;gap:0.75rem">' +
+                        '<p class="lead" style="margin:0">Could not calculate your fit score. Check the connection and try again.</p>' +
+                        '<button type="button" class="btn btn-primary" data-fit-retry="1">Try again</button></div>';
+                    mountPanelFitScore(p2, null, 'Fit Score', 'initial');
+                    bindCompleteButtons();
+                }
+
+                function setP2NeedStep1() {
+                    p2.className = 'panel-card panel-card--narrow';
+                    p2.innerHTML =
+                        '<h2>' + stepMeta[1].title + '</h2>' +
+                        '<p class="lead">' + stepMeta[1].desc + '</p>' +
+                        '<div data-fit-score-root></div>' +
+                        '<div class="actions-row" style="flex-direction:column;align-items:stretch;gap:0.75rem">' +
+                        '<p class="lead" style="margin:0">We need a completed upload from step 1. After refresh, pick your resume file again.</p>' +
+                        '<button type="button" class="btn btn-primary" data-resume-back-step1="1">Back to step 1</button></div>';
+                    mountPanelFitScore(p2, null, 'Fit Score', 'initial');
+                }
+
+                function setCoverNeedStep1() {
+                    p2.className = 'panel-card panel-card--fluid';
+                    p2.innerHTML =
+                        '<h2>' + stepMeta[1].title + '</h2>' +
+                        '<p class="lead">' + stepMeta[1].desc + '</p>' +
+                        '<p class="lead" style="margin:0">Complete step 1 by pasting the job posting first.</p>' +
+                        '<div class="actions-row" style="margin-top:1rem">' +
+                        '<button type="button" class="btn btn-primary" data-resume-back-step1="1">Back to step 1</button></div>';
+                }
+
+                async function runCoverLetterGeneration(force) {
+                    if (kind !== 'cover') return;
+                    if (!state.jobDescriptionId) return;
+                    if (!force && coverLetterText) return;
+                    if (coverGenLoading && !force) return;
+
+                    if (coverGenAbortTimer) {
+                        clearTimeout(coverGenAbortTimer);
+                        coverGenAbortTimer = null;
+                    }
+                    if (coverGenAbortCtl) {
+                        try {
+                            coverGenAbortCtl.abort();
+                        } catch (abortErr) {}
+                    }
+
+                    var seq = ++coverGenSeq;
+                    coverGenAbortCtl = new AbortController();
+                    var signal = coverGenAbortCtl.signal;
+
+                    coverGenLoading = true;
+                    coverGenFailed = false;
+                    var statusEl = p2.querySelector('[data-cover-status]');
+                    var ta = p2.querySelector('#cl-generated-' + flow);
+                    var btnCont = p2.querySelector('[data-cover-ready]');
+                    if (statusEl) statusEl.textContent = 'Generating your cover letter…';
+                    if (btnCont) btnCont.hidden = true;
+                    coverGenAbortTimer = setTimeout(function () {
+                        if (coverGenAbortCtl) coverGenAbortCtl.abort();
+                    }, 120000);
+                    var thisTimer = coverGenAbortTimer;
+                    try {
+                        var data = await apiRequest('/api/workflow/cover-letter', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                jobDescriptionId: state.jobDescriptionId,
+                                // Pass resume text so the backend can personalise the letter
+                                resumeText: coverResumeText || undefined
+                            }),
+                            signal: signal
+                        });
+                        if (seq !== coverGenSeq) return;
+                        coverLetterText = data && data.coverLetter ? String(data.coverLetter) : '';
+                        coverHadResult = !!coverLetterText;
+                        if (ta) ta.value = coverLetterText;
+                        if (statusEl) statusEl.textContent = '';
+                        if (btnCont) btnCont.hidden = !coverLetterText;
+                        coverGenFailed = false;
+                    } catch (err) {
+                        if (seq !== coverGenSeq) return;
+                        coverGenFailed = true;
+                        if (statusEl) statusEl.textContent = '';
+                        var aborted =
+                            (err && err.name === 'AbortError') ||
+                            (err && String(err.message || '').indexOf('aborted') !== -1);
+                        await appAlert(
+                            aborted
+                                ? 'Generation timed out. Check that the API is running and AI_PROVIDER / keys are set.'
+                                : err.message || 'Failed to generate cover letter'
+                        );
+                    } finally {
+                        clearTimeout(thisTimer);
+                        if (coverGenAbortTimer === thisTimer) {
+                            coverGenAbortTimer = null;
+                        }
+                        if (seq === coverGenSeq) {
+                            coverGenLoading = false;
+                            coverGenAbortCtl = null;
+                            saveState(flow, state);
+                            updateUI();
+                        }
+                    }
+                }
+
+                async function runInitialFitAnalysis() {
+                    if (kind !== 'resume') return;
+                    if (!state.resumeId || !state.jobDescriptionId) return;
+                    if (analyzeResponse) return;
+                    if (fitAnalysisLoading) return;
+                    fitAnalysisLoading = true;
+                    setP2FitLoading();
+                    var abortCtl = new AbortController();
+                    var abortTimer = setTimeout(function () {
+                        abortCtl.abort();
+                    }, 120000);
+                    try {
+                        analyzeResponse = await apiRequest('/api/workflow/analyze', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                resumeId: state.resumeId,
+                                jobDescriptionId: state.jobDescriptionId
+                            }),
+                            signal: abortCtl.signal
+                        });
+                        renderScorePanel(
+                            p2,
+                            analyzeResponse.scores.overall,
+                            'Fit Score',
+                            2,
+                            'initial',
+                            true
+                        );
+                        renderSuggestionPanel(analyzeResponse.suggestions || []);
+                        bindCompleteButtons();
+                        state.completed = Math.max(state.completed, 2);
+                        fitAnalysisFailed = false;
+                    } catch (error) {
+                        fitAnalysisFailed = true;
+                        var aborted =
+                            (error && error.name === 'AbortError') ||
+                            (error && String(error.message || '').indexOf('aborted') !== -1);
+                        await appAlert(
+                            aborted
+                                ? 'Analysis timed out or was interrupted. Make sure the API server is running at ' +
+                                      API_BASE_URL +
+                                      '.'
+                                : error.message || 'Failed to calculate fit score'
+                        );
+                        setP2FitError();
+                    } finally {
+                        clearTimeout(abortTimer);
+                        fitAnalysisLoading = false;
+                    }
+                    saveState(flow, state);
+                    updateUI();
+                }
+
+                function updateUI() {
+                    var maxA = maxAccessible(state.completed, totalSteps);
+                    if (state.current > maxA) state.current = maxA;
+                    saveState(flow, state);
+
+                    stepNodes.forEach(function (sn) {
+                        var id = sn.meta.id;
+                        sn.node.classList.remove('is-active', 'is-done', 'is-locked');
+                        if (id <= state.completed) {
+                            sn.node.classList.add('is-done');
+                            sn.btn.innerHTML = '&#10003;';
+                            sn.btn.setAttribute('aria-label', 'Step ' + id + ' completed');
+                        } else {
+                            sn.btn.textContent = String(id);
+                            sn.btn.setAttribute('aria-label', 'Step ' + id + ': ' + sn.meta.title);
+                        }
+                        if (id === state.current) sn.node.classList.add('is-active');
+                        if (id > maxAccessible(state.completed, totalSteps)) {
+                            sn.node.classList.add('is-locked');
+                            sn.btn.disabled = true;
+                        } else {
+                            sn.btn.disabled = false;
+                        }
+                    });
+
+                    panelEls.forEach(function (p) {
+                        var s = parseInt(p.dataset.stepPanel, 10);
+                        p.hidden = s !== state.current;
+                    });
+
+                    jobInput.value = state.jobText;
+                    if (fileInput && state.fileName && fileInput.files.length === 0) {
+                        // cannot restore FileList; show stored name in UI via title
+                        fileInput.setAttribute('data-saved-name', state.fileName);
+                    } else if (fileInput) {
+                        fileInput.removeAttribute('data-saved-name');
+                    }
+                    syncResumeFileNameDisplay();
+
+                    if (kind !== 'cover') {
+                        if (analyzeResponse && analyzeResponse.scores && analyzeResponse.scores.overall !== undefined) {
+                            syncScorePanelFromResponse(p2, analyzeResponse.scores.overall, 'initial');
+                        }
+                        if (applyResponse && applyResponse.scores && applyResponse.scores.overall !== undefined) {
+                            syncScorePanelFromResponse(p4, applyResponse.scores.overall, 'new');
+                        }
+                    }
+
+                    renderHint();
+
+                    if (kind === 'resume' && state.current === 2 && !analyzeResponse && !fitAnalysisFailed) {
+                        if (!state.resumeId || !state.jobDescriptionId) {
+                            setP2NeedStep1();
+                        } else if (!fitAnalysisLoading) {
+                            void runInitialFitAnalysis();
+                        }
+                    }
+
+                    if (kind === 'cover' && state.current === 2) {
+                        if (!state.jobDescriptionId) {
+                            setCoverNeedStep1();
+                        } else if (!coverLetterText && !coverGenLoading && !coverGenFailed && !coverHadResult) {
+                            void runCoverLetterGeneration(false);
+                        } else if (coverLetterText) {
+                            var taCov = p2.querySelector('#cl-generated-' + flow);
+                            if (taCov) taCov.value = coverLetterText;
+                            var btnCov = p2.querySelector('[data-cover-ready]');
+                            if (btnCov) btnCov.hidden = false;
+                        } else if (coverHadResult) {
+                            var btnCov2 = p2.querySelector('[data-cover-ready]');
+                            if (btnCov2) btnCov2.hidden = false;
+                        }
+                    }
+                }
+
+                panelsParent.addEventListener('change', function (ev) {
+                    var t = ev.target;
+                    if (!t.matches || !t.matches('input[name="exp-tpl-' + flow + '"]')) {
+                        return;
+                    }
+                    if (kind !== 'resume' || !p5) return;
+                    var thumb = p5.querySelector('[data-export-preview="' + flow + '"]');
+                    if (!thumb) return;
+                    thumb.classList.remove('preview-tailored', 'preview-modern');
+                    thumb.classList.add(t.value === 'modern' ? 'preview-modern' : 'preview-tailored');
+                });
+
+                jobInput.addEventListener('input', function () {
+                    state.jobText = jobInput.value;
+                    saveState(flow, state);
+                });
+
+                panelsParent.addEventListener('input', function (ev) {
+                    var t = ev.target;
+                    if (kind !== 'cover' || !t || t.id !== 'cl-generated-' + flow) {
+                        return;
+                    }
+                    coverLetterText = t.value;
+                });
+
+                if (fileInput) {
+                    fileInput.addEventListener('change', function () {
+                        var f = fileInput.files[0];
+                        state.fileName = f ? f.name : '';
+                        if (f) fileInput.removeAttribute('data-saved-name');
+                        saveState(flow, state);
+                        syncResumeFileNameDisplay();
+                    });
+                }
+
+                panelsParent.addEventListener('click', function (e) {
+                    var t = e.target;
+                    if (!(t instanceof Element)) {
+                        t = t && t.parentElement;
+                    }
+                    if (!t || typeof t.closest !== 'function') {
+                        return;
+                    }
+                    if (t.closest('[data-resume-back-step1]')) {
+                        state.current = 1;
+                        if (kind === 'resume') {
+                            fitAnalysisFailed = false;
+                        } else if (kind === 'cover') {
+                            coverLetterText = '';
+                            coverHadResult = false;
+                            coverGenFailed = false;
+                            p2.className = 'panel-card panel-card--fluid';
+                            p2.innerHTML = htmlCoverStep2(flow);
+                            bindCompleteButtons();
+                        }
+                        saveState(flow, state);
+                        updateUI();
+                        return;
+                    }
+                    if (t.closest('[data-sug-accept]')) {
+                        var acceptRoot = p3.querySelector('[data-suggestion-list-root]');
+                        if (window.ResumeAI && acceptRoot) {
+                            ResumeAI.setAllSuggestions(acceptRoot, true);
+                        }
+                        return;
+                    }
+                    if (t.closest('[data-sug-reject]')) {
+                        var rejectRoot = p3.querySelector('[data-suggestion-list-root]');
+                        if (window.ResumeAI && rejectRoot) {
+                            ResumeAI.setAllSuggestions(rejectRoot, false);
+                        }
+                        return;
+                    }
+                    if (t.closest('[data-exp-dl]')) {
+                        if (kind === 'resume') {
+                            if (!applyResponse || !applyResponse.improvedResumeText) {
+                                void appAlert('No improved resume to export yet.');
+                                return;
+                            }
+                            var fname = p5.querySelector('#exp-fname-' + flow);
+                            var templateEl = p5.querySelector('input[name="exp-tpl-' + flow + '"]:checked');
+                            var templateName = templateEl ? templateEl.value : 'tailored';
+                            var formatEl = p5.querySelector('input[name="exp-format-' + flow + '"]:checked');
+                            var exportFormat = formatEl ? formatEl.value : 'pdf';
+                            fetch(API_BASE_URL + '/api/workflow/export', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + authToken
+                                },
+                                body: JSON.stringify({
+                                    content: applyResponse.improvedResumeText,
+                                    fileName: fname && fname.value ? fname.value : 'improved_resume',
+                                    resumeId: undefined,
+                                    exportMode: 'improvedPdf',
+                                    template: templateName,
+                                    exportFormat: exportFormat
+                                })
+                            }).then(function (res) {
+                                if (!res.ok) throw new Error('Export failed');
+                                var disposition = res.headers.get('content-disposition') || '';
+                                var match = disposition.match(/filename="?([^"]+)"?/i);
+                                var serverFileName = match && match[1] ? match[1] : '';
+                                var contentType = (res.headers.get('content-type') || '').toLowerCase();
+                                return res.blob().then(function (blob) {
+                                    return { blob: blob, serverFileName: serverFileName, contentType: contentType };
+                                });
+                            }).then(function (payload) {
+                                var link = document.createElement('a');
+                                link.href = URL.createObjectURL(payload.blob);
+                                var ext = '.txt';
+                                if (payload.contentType.indexOf('application/pdf') !== -1) ext = '.pdf';
+                                else if (payload.contentType.indexOf('application/vnd.openxmlformats-officedocument.wordprocessingml.document') !== -1) ext = '.docx';
+                                else if (payload.contentType.indexOf('application/msword') !== -1) ext = '.doc';
+                                var fallbackName = ((fname && fname.value) ? fname.value : 'improved_resume') + ext;
+                                link.download = payload.serverFileName || fallbackName;
+                                link.click();
+                            }).catch(function (error) {
+                                void appAlert(error.message || 'Export failed');
+                            });
+                            return;
+                        }
+                        if (kind === 'cover') {
+                            var taExport = p2.querySelector('#cl-generated-' + flow);
+                            var letterForExport = taExport ? taExport.value : coverLetterText;
+                            if (!letterForExport || !String(letterForExport).trim()) {
+                                void appAlert('Generate your cover letter on step 2 first.');
+                                return;
+                            }
+                            coverLetterText = String(letterForExport);
+                            var fnameC = p3.querySelector('#exp-fname-' + flow);
+                            var formatElC = p3.querySelector('input[name="exp-format-' + flow + '"]:checked');
+                            var exportFormatC = formatElC ? formatElC.value : 'pdf';
+                            fetch(API_BASE_URL + '/api/workflow/export', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: 'Bearer ' + authToken
+                                },
+                                body: JSON.stringify({
+                                    content: coverLetterText,
+                                    fileName: fnameC && fnameC.value ? fnameC.value : 'cover_letter',
+                                    documentType: 'coverLetter',
+                                    exportFormat: exportFormatC,
+                                    template: 'tailored'
+                                })
+                            }).then(function (res) {
+                                if (!res.ok) throw new Error('Export failed');
+                                var disposition = res.headers.get('content-disposition') || '';
+                                var match = disposition.match(/filename="?([^"]+)"?/i);
+                                var serverFileName = match && match[1] ? match[1] : '';
+                                var contentType = (res.headers.get('content-type') || '').toLowerCase();
+                                return res.blob().then(function (blob) {
+                                    return { blob: blob, serverFileName: serverFileName, contentType: contentType };
+                                });
+                            }).then(function (payload) {
+                                var link = document.createElement('a');
+                                link.href = URL.createObjectURL(payload.blob);
+                                var ext = '.txt';
+                                if (payload.contentType.indexOf('application/pdf') !== -1) ext = '.pdf';
+                                else if (payload.contentType.indexOf('application/vnd.openxmlformats-officedocument.wordprocessingml.document') !== -1) ext = '.docx';
+                                var fallbackName = ((fnameC && fnameC.value) ? fnameC.value : 'cover_letter') + ext;
+                                link.download = payload.serverFileName || fallbackName;
+                                link.click();
+                            }).catch(function (error) {
+                                void appAlert(error.message || 'Export failed');
+                            });
+                            return;
+                        }
+                        void appAlert('Download would start with your selected format and template (demo).');
+                        return;
+                    }
+                    if (t.closest('[data-exp-sec]')) {
+                        void appAlert('Email to myself (demo).');
+                        return;
+                    }
+                    if (t.closest('[data-exp-cloud]')) {
+                        void appAlert('Save to cloud (demo).');
+                        return;
+                    }
+                    if (t.closest('[data-cover-gen]')) {
+                        if (kind !== 'cover') return;
+                        coverLetterText = '';
+                        coverGenFailed = false;
+                        var taRegen = p2.querySelector('#cl-generated-' + flow);
+                        if (taRegen) taRegen.value = '';
+                        void runCoverLetterGeneration(true);
+                        return;
+                    }
+                });
+
+                function bindCompleteButtons() {
+                    panelsParent.querySelectorAll('[data-complete]').forEach(function (b) {
+                        if (b.getAttribute('data-bound') === '1') return;
+                        b.setAttribute('data-bound', '1');
+                        b.addEventListener('click', async function () {
+                        if (b.getAttribute('data-fit-retry') === '1') {
+                            fitAnalysisFailed = false;
+                            await runInitialFitAnalysis();
+                            return;
+                        }
+                        var stepNum = parseInt(b.getAttribute('data-complete'), 10);
+                        if (kind === 'resume' && stepNum === 2 && b.getAttribute('data-score-ready') === '1') {
+                            state.current = 3;
+                            saveState(flow, state);
+                            updateUI();
+                            return;
+                        }
+                        if (kind === 'resume' && stepNum === 4 && b.getAttribute('data-score-ready') === '1') {
+                            state.completed = Math.max(state.completed, 4);
+                            state.current = 5;
+                            saveState(flow, state);
+                            updateUI();
+                            return;
+                        }
+                        if (kind === 'cover' && stepNum === 2 && b.getAttribute('data-cover-ready') === '1') {
+                            var taStep2 = p2.querySelector('#cl-generated-' + flow);
+                            if (taStep2) coverLetterText = taStep2.value;
+                            state.completed = Math.max(state.completed, 2);
+                            state.current = 3;
+                            var expNameC = 'Cover_letter_' + new Date().getTime();
+                            var fnC = p3.querySelector('#exp-fname-' + flow);
+                            if (fnC) fnC.value = expNameC;
+                            saveState(flow, state);
+                            updateUI();
+                            return;
+                        }
+                        var advanceCurrent = true;
+                        if (stepNum === 1) {
+                            var textOk = jobInput.value.trim().length >= 20;
+                            if (kind === 'cover') {
+                                if (!jobInput.value.trim()) {
+                                    return;
+                                }
+                            } else {
+                                var hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+                                var hasSaved = state.fileName && !hasFile;
+                                if (!(hasFile || hasSaved) || !textOk) {
+                                    await appAlert('Please upload a resume file and paste a job posting (at least a short paragraph).');
+                                    return;
+                                }
+                            }
+                            state.jobText = jobInput.value;
+                            if (kind !== 'cover' && fileInput) {
+                                var hasFile2 = fileInput.files && fileInput.files.length > 0;
+                                if (hasFile2) state.fileName = fileInput.files[0].name;
+                            }
+                            b.disabled = true;
+                            try {
+                                if (kind === 'cover') {
+                                    var covIds = await uploadCoverJobOnly();
+                                    if (covIds) {
+                                        state.resumeId = '';
+                                        state.fileName = '';
+                                        state.jobDescriptionId = String(covIds.jobDescriptionId);
+                                        if (covIds.coverResumeText) coverResumeText = covIds.coverResumeText;
+                                    }
+                                } else {
+                                    var ids = await uploadStepOneData();
+                                    if (ids) {
+                                        state.resumeId = String(ids.resumeId);
+                                        state.jobDescriptionId = String(ids.jobDescriptionId);
+                                    }
+                                }
+                            } catch (error) {
+                                await appAlert(error.message || 'Failed to upload data to backend.');
+                                b.disabled = false;
+                                return;
+                            }
+                            b.disabled = false;
+                            state.completed = Math.max(state.completed, 1);
+                            if (kind === 'cover') {
+                                p2.className = 'panel-card panel-card--fluid';
+                                p2.innerHTML = htmlCoverStep2(flow);
+                                coverLetterText = '';
+                                coverHadResult = false;
+                                coverGenFailed = false;
+                                coverGenLoading = false;
+                                bindCompleteButtons();
+                            }
+                        } else if (kind === 'resume' && stepNum === 3) {
+                            if (!analyzeResponse) {
+                                await appAlert('Please run fit analysis first.');
+                                return;
+                            }
+                            var listRoot = p3.querySelector('[data-suggestion-list-root]');
+                            var selections = window.ResumeAI && listRoot
+                                ? ResumeAI.readSuggestionSelections(listRoot)
+                                : [];
+                            if (!selections.length) {
+                                p3.querySelectorAll('.suggestion-toggle').forEach(function (el) {
+                                    selections.push({
+                                        id: el.getAttribute('data-suggestion-id'),
+                                        apply: !!el.checked
+                                    });
+                                });
+                            }
+                            b.disabled = true;
+                            try {
+                                applyResponse = await apiRequest('/api/workflow/apply-suggestions', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        resumeId: state.resumeId,
+                                        jobDescriptionId: state.jobDescriptionId,
+                                        suggestions: analyzeResponse.suggestions || [],
+                                        selections: selections
+                                    })
+                                });
+                                renderScorePanel(
+                                    p4,
+                                    applyResponse.scores.overall,
+                                    'Updated Fit Score',
+                                    4,
+                                    'new',
+                                    true
+                                );
+                                var exportName = 'improved_resume_' + (new Date().getTime());
+                                refreshResumeExportPanel();
+                                var fname = p5.querySelector('#exp-fname-' + flow);
+                                if (fname) {
+                                    fname.value = exportName;
+                                }
+                            } catch (error) {
+                                await appAlert(error.message || 'Failed to apply suggestions');
+                                b.disabled = false;
+                                return;
+                            }
+                            b.disabled = false;
+                            state.completed = Math.max(state.completed, stepNum);
+                            advanceCurrent = false;
+                            state.current = 4;
+                        } else {
+                            if (stepNum > maxAccessible(state.completed, totalSteps)) return;
+                            state.completed = Math.max(state.completed, stepNum);
+                        }
+                        if (state.completed >= totalSteps) {
+                            resetWorkflowToStart();
+                            await appAlert('Workflow completed. You can start a new run now.');
+                        } else if (advanceCurrent) {
+                            state.current = Math.min(state.completed + 1, totalSteps);
+                        }
+                        saveState(flow, state);
+                        updateUI();
+                        });
+                    });
+                }
+
+                function resetWorkflowToStart() {
+                    state.completed = 0;
+                    state.current = 1;
+                    state.jobText = '';
+                    state.fileName = '';
+                    state.resumeId = '';
+                    state.jobDescriptionId = '';
+                    analyzeResponse = null;
+                    applyResponse = null;
+                    fitAnalysisLoading = false;
+                    fitAnalysisFailed = false;
+                    if (fileInput) fileInput.value = '';
+                    if (jobInput) jobInput.value = '';
+                    syncResumeFileNameDisplay();
+
+                    if (kind === 'resume') {
+                        p2.className = 'panel-card panel-card--narrow';
+                        p2.innerHTML =
+                            '<h2>' + stepMeta[1].title + '</h2>' +
+                            '<p class="lead">' + stepMeta[1].desc + '</p>' +
+                            '<div data-fit-score-root></div>' +
+                            '<div class="actions-row fit-score-status"><p class="lead" style="margin:0;color:var(--muted)">One moment…</p></div>';
+                        mountPanelFitScore(p2, null, 'Fit Score', 'initial');
+                        p3.className = 'panel-card panel-card--fluid';
+                        p3.innerHTML = htmlSuggestions(flow, kind);
+                        p4.className = 'panel-card panel-card--narrow';
+                        p4.innerHTML =
+                            '<h2>' + stepMeta[3].title + '</h2>' +
+                            '<p class="lead">' + stepMeta[3].desc + '</p>' +
+                            '<div data-fit-score-root></div>' +
+                            '<div class="actions-row">' +
+                            '<button type="button" class="btn btn-primary" data-complete="4">Mark step complete</button></div>';
+                        mountPanelFitScore(p4, null, 'Updated Fit Score', 'new');
+                        refreshResumeExportPanel();
+                    } else {
+                        if (coverGenAbortTimer) {
+                            clearTimeout(coverGenAbortTimer);
+                            coverGenAbortTimer = null;
+                        }
+                        if (coverGenAbortCtl) {
+                            try {
+                                coverGenAbortCtl.abort();
+                            } catch (abortReset) {}
+                            coverGenAbortCtl = null;
+                        }
+                        coverGenSeq += 1;
+                        coverLetterText = '';
+                        coverHadResult = false;
+                        coverGenLoading = false;
+                        coverGenFailed = false;
+                        p2.className = 'panel-card panel-card--fluid';
+                        p2.innerHTML = htmlCoverStep2(flow);
+                        p3.className = 'panel-card panel-card--fluid';
+                        p3.innerHTML = htmlExport(flow, 3, 'cover');
+                    }
+                    bindCompleteButtons();
+                }
+
+                var finishToolbar = document.createElement('div');
+                finishToolbar.className = 'workflow-finish-toolbar';
+                finishToolbar.innerHTML =
+                    '<p>You can finish this run anytime and return to step&nbsp;1. Data on the server is kept.</p>' +
+                    '<button type="button" class="btn btn-secondary" data-workflow-finish>Finish flow &amp; start over</button>';
+                hint.insertAdjacentElement('afterend', finishToolbar);
+                finishToolbar.querySelector('[data-workflow-finish]').addEventListener('click', async function () {
+                    if (!(await appConfirm('End this workflow and go back to step 1?'))) return;
+                    resetWorkflowToStart();
+                    saveState(flow, state);
+                    updateUI();
+                    await appAlert('Flow reset. You can start a new run.');
+                });
+
+                jobInput.value = state.jobText;
+                bindCompleteButtons();
+                updateUI();
+                container.appendChild(root);
+            }
+
+            buildWorkflow(document.getElementById('workflow-resume'), 'resume', 'resume');
+            buildWorkflow(document.getElementById('workflow-cover'), 'cover', 'cover');
+
+            // Nav
+            var views = {
+                resumes: document.getElementById('view-resumes'),
+                letters: document.getElementById('view-letters'),
+                library: document.getElementById('view-library'),
+                settings: document.getElementById('view-settings')
+            };
+
+            function parseFilenameFromDisposition(header) {
+                if (!header) return '';
+                var m = /filename\*=UTF-8''([^;]+)/i.exec(header);
+                if (m && m[1]) {
+                    try {
+                        return decodeURIComponent(m[1].trim());
+                    } catch (e) {
+                        return m[1].trim();
+                    }
+                }
+                var m2 = /filename="([^"]+)"/i.exec(header);
+                return m2 && m2[1] ? m2[1].trim() : '';
+            }
+
+            function downloadAuthenticatedFile(path, fallbackName) {
+                return fetch(API_BASE_URL + path, {
+                    headers: { Authorization: 'Bearer ' + authToken }
+                }).then(function (res) {
+                    if (!res.ok) return res.text().then(function (t) {
+                        throw new Error(t || 'Download failed');
+                    });
+                    var disp = res.headers.get('content-disposition') || '';
+                    var name = parseFilenameFromDisposition(disp) || fallbackName;
+                    return res.blob().then(function (blob) {
+                        return { blob: blob, name: name };
+                    });
+                }).then(function (payload) {
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(payload.blob);
+                    a.download = payload.name;
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                });
+            }
+
+            function formatLibraryDate(iso) {
+                if (!iso) return '—';
+                try {
+                    var d = new Date(iso);
+                    return isNaN(d.getTime()) ? '—' : d.toLocaleString(undefined, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short'
+                    });
+                } catch (e) {
+                    return '—';
+                }
+            }
+
+            function exportKindLabel(kind) {
+                if (kind === 'IMPROVED_RESUME') return 'Improved resume';
+                if (kind === 'COVER_LETTER') return 'Cover letter';
+                return kind ? String(kind) : '—';
+            }
+
+            function loadLibraryLists() {
+                var box = document.getElementById('library-exports-box');
+                if (!box) return;
+                box.innerHTML = '<p class="recent-files-empty">Loading…</p>';
+
+                apiRequest('/api/workflow/exports/recent')
+                    .catch(function () {
+                        return [];
+                    })
+                    .then(function (rows) {
+                        var list = Array.isArray(rows) ? rows : [];
+                        if (list.length === 0) {
+                            box.innerHTML =
+                                '<p class="recent-files-empty">Nothing here yet. Use <strong>Download</strong> on the resume or cover letter export step — each download is saved here.</p>';
+                            return;
+                        }
+                        var h =
+                            '<table class="recent-files-table"><thead><tr><th>Type</th><th>Name</th><th>Format</th><th>When</th><th class="cell-actions">Download again</th></tr></thead><tbody>';
+                        list.forEach(function (row) {
+                            var name = (row.displayName || 'export').replace(/</g, '&lt;');
+                            var fmt = (row.format || '').toUpperCase();
+                            var tpl =
+                                row.kind === 'IMPROVED_RESUME' && row.template
+                                    ? ' <span style="color:var(--muted);font-weight:400">(' +
+                                      String(row.template) +
+                                      ')</span>'
+                                    : '';
+                            h += '<tr><td>' + exportKindLabel(row.kind) + tpl + '</td><td>' + name + '</td><td>' + fmt + '</td><td>' + formatLibraryDate(row.createdAt) + '</td><td class="cell-actions">';
+                            h +=
+                                '<button type="button" class="btn-inline" data-dl-export="' +
+                                String(row.id) +
+                                '">Download</button>';
+                            h += '</td></tr>';
+                        });
+                        h += '</tbody></table>';
+                        box.innerHTML = h;
+                        box.querySelectorAll('[data-dl-export]').forEach(function (b) {
+                            b.addEventListener('click', function () {
+                                var id = b.getAttribute('data-dl-export');
+                                downloadAuthenticatedFile('/api/workflow/exports/' + id + '/download', 'export')
+                                    .catch(function (err) {
+                                        void appAlert(err.message || 'Download failed');
+                                    });
+                            });
+                        });
+                    });
+            }
+
+            document.querySelectorAll('.nav-btn[data-view]').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var v = btn.getAttribute('data-view');
+                    document.querySelectorAll('.nav-btn[data-view]').forEach(function (b) {
+                        b.removeAttribute('aria-current');
+                    });
+                    btn.setAttribute('aria-current', 'page');
+                    Object.keys(views).forEach(function (key) {
+                        if (views[key]) views[key].classList.toggle('is-active', key === v);
+                    });
+                    if (v === 'library') {
+                        loadLibraryLists();
+                    }
+                });
+            });
+
+            var btnLibRefresh = document.getElementById('btn-library-refresh');
+            if (btnLibRefresh) {
+                btnLibRefresh.addEventListener('click', function () {
+                    loadLibraryLists();
+                });
+            }
+
+            function applyProfileToSettings(profile) {
+                if (!profile || !profile.email) return;
+                var setEmail = document.getElementById('set-email');
+                var setName = document.getElementById('set-name');
+                if (setEmail) setEmail.value = profile.email;
+                var displayName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim();
+                if (setName && displayName) setName.value = displayName;
+                if (window.ResumeAI) {
+                    ResumeAI.updateUserBadge(profile.email);
+                }
+                try {
+                    localStorage.setItem(
+                        'jobsuit_profile',
+                        JSON.stringify({
+                            name: setName ? setName.value.trim() : displayName,
+                            email: profile.email
+                        })
+                    );
+                } catch (e) {}
+            }
+
+            apiRequest('/api/profile')
+                .then(applyProfileToSettings)
+                .catch(function (error) {
+                    void appAlert(error.message || 'Failed to load profile.');
+                });
+
+            document.getElementById('btn-logout').addEventListener('click', function () {
+                localStorage.removeItem('jobsuit_token');
+                localStorage.removeItem('jobsuit_user');
+                localStorage.removeItem('jobsuit_profile');
+                window.location.href = 'index.html';
+            });
+
+            var bugModal = document.getElementById('bug-modal');
+            var bugModalClose = document.getElementById('bug-modal-close');
+            var bugModalSend = document.getElementById('bug-modal-send');
+            var bugModalInput = document.getElementById('bug-modal-input');
+            document.getElementById('btn-report-bug').addEventListener('click', function () {
+                bugModal.hidden = false;
+                bugModalInput.value = '';
+                bugModalInput.focus();
+            });
+            bugModalClose.addEventListener('click', function () {
+                bugModal.hidden = true;
+            });
+            bugModalSend.addEventListener('click', function () {
+                var reportText = bugModalInput.value.trim();
+                if (!reportText) {
+                    void appAlert('Please enter your bug report first.');
+                    bugModalInput.focus();
+                    return;
+                }
+                bugModal.hidden = true;
+                void appAlert('Thanks! Your bug report will be sent to resumeAI@gmail.com (demo).');
+            });
+            bugModal.addEventListener('click', function (e) {
+                if (e.target === bugModal) {
+                    bugModal.hidden = true;
+                }
+            });
+
+            document.getElementById('btn-save-settings').addEventListener('click', function () {
+                var name = document.getElementById('set-name').value.trim();
+                var em = document.getElementById('set-email').value.trim();
+                if (em && window.ResumeAI) {
+                    ResumeAI.updateUserBadge(em);
+                }
+                try {
+                    localStorage.setItem('jobsuit_profile', JSON.stringify({ name: name, email: em }));
+                } catch (e) {}
+                void appAlert('Settings saved locally.');
+            });
+
+            document.getElementById('btn-reset-password').addEventListener('click', function () {
+                var cur = document.getElementById('set-current-pass').value;
+                var nw = document.getElementById('set-new-pass').value;
+                var cf = document.getElementById('set-confirm-pass').value;
+                if (!cur || !nw || !cf) {
+                    void appAlert('Please fill in all password fields.');
+                    return;
+                }
+                if (nw.length < 8) {
+                    void appAlert('New password must be at least 8 characters.');
+                    return;
+                }
+                if (nw !== cf) {
+                    void appAlert('New password and confirmation do not match.');
+                    return;
+                }
+                document.getElementById('set-current-pass').value = '';
+                document.getElementById('set-new-pass').value = '';
+                document.getElementById('set-confirm-pass').value = '';
+                void appAlert('Password update requested (demo only—connect your backend to apply this).');
+            });
+
+            var initialUserEmail = 'you@example.com';
+            try {
+                var ju = JSON.parse(localStorage.getItem('jobsuit_user') || '{}');
+                if (ju.email) {
+                    initialUserEmail = ju.email;
+                    document.getElementById('set-email').value = ju.email;
+                    var nm = [ju.firstName, ju.lastName].filter(Boolean).join(' ').trim();
+                    if (nm) document.getElementById('set-name').value = nm;
+                }
+            } catch (e) {}
+
+            if (window.ResumeAI) {
+                ResumeAI.mountUserBadge(document.getElementById('react-user-badge'), {
+                    email: initialUserEmail
+                });
+            }
+
+            (function sidebarToggle() {
+                var KEY = 'jobsuit_sidebar_collapsed';
+                var btn = document.getElementById('btn-sidebar-rail');
+                if (!btn) return;
+                function applySidebarCollapsed(collapsed) {
+                    document.body.classList.toggle('sidebar-collapsed', collapsed);
+                    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+                    btn.setAttribute('title', collapsed ? 'Show menu' : 'Hide menu');
+                    try {
+                        localStorage.setItem(KEY, collapsed ? '1' : '0');
+                    } catch (err) {}
+                }
+                btn.addEventListener('click', function () {
+                    applySidebarCollapsed(!document.body.classList.contains('sidebar-collapsed'));
+                });
+                try {
+                    if (localStorage.getItem(KEY) === '1') {
+                        applySidebarCollapsed(true);
+                    }
+                } catch (err) {}
+            })();
+        })();
+    </script>
+</body>
+</html>

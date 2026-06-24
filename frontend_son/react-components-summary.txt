@@ -1,0 +1,59 @@
+RESUMEAI FRONTEND — REACT COMPONENTS (BULLET POINTS)
+=====================================================
+
+OVERVIEW
+- Hybrid frontend: vanilla JavaScript + small React components
+- React loaded via CDN — no npm build step
+- All React code in: frontend_son/js/react-ui.js
+- Components mount into empty divs via window.ResumeAI
+- Backend API runs on port 5000 (Express)
+
+ARCHITECTURE
+- index.html → login page
+- dashboard.html → main app (workflows, settings, downloads)
+- Vanilla JS handles: auth, workflow steps, API calls, navigation, localStorage
+- React handles: interactive UI widgets with state
+- improved-resume.html & export-resume.html → static mockups only (no React)
+
+REACT COMPONENTS (4)
+- PasswordInput
+  - Page: index.html (login + register)
+  - Shows/hides password with useState toggle
+
+- UserBadge
+  - Page: dashboard.html sidebar
+  - Shows user email + avatar initial
+  - Updates when profile loads from API
+
+- FitScoreCircle
+  - Page: dashboard.html resume workflow
+  - Step 2: initial fit score
+  - Step 4: updated fit score after improvements
+  - SVG circular progress ring, receives percent + label as props
+
+- SuggestionCard / SuggestionList
+  - Page: dashboard.html resume workflow step 3
+  - Renders AI suggestions with Apply checkboxes
+  - Accept All / Reject All supported
+
+STILL VANILLA JS (NOT REACT)
+- Page layout, sidebar, view switching
+- 5-step resume workflow
+- 3-step cover letter workflow
+- All fetch / API calls
+- Step locking & localStorage state
+- Export downloads & cover letter generation
+- Login/register submit logic
+
+KEY FILES
+- frontend_son/index.html
+- frontend_son/dashboard.html
+- frontend_son/js/react-ui.js
+
+REBUILD?
+- No rebuild needed
+- Hard refresh browser (Cmd+Shift+R)
+- Serve with Live Server — not file://
+
+ONE-LINER FOR PRESENTATION
+- Vanilla JS runs the workflow shell; four React components (password, user badge, fit score, suggestions) mount where UI needs state — a "React islands" pattern.

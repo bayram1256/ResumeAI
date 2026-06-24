@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Improvement Suggestions - ResumeAI</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-bar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-accept-all {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-accept-all:hover {
+            background-color: #059669;
+        }
+
+        .btn-reject-all {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-reject-all:hover {
+            background-color: #dc2626;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Split Screen Layout */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .resume-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            min-height: 600px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .panel-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-original {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-improved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        /* Resume Content */
+        .resume-content {
+            font-size: 0.9375rem;
+            line-height: 1.8;
+            color: #334155;
+        }
+
+        .resume-section {
+            margin-bottom: 2rem;
+        }
+
+        .resume-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Improvements */
+        .improvement-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #10b981;
+        }
+
+        .improvement-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .improvement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .improvement-explanation {
+            flex: 1;
+            font-size: 0.875rem;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .improvement-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-accept {
+            background-color: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-accept:hover {
+            background-color: #059669;
+        }
+
+        .btn-reject {
+            background-color: #ef4444;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-reject:hover {
+            background-color: #dc2626;
+        }
+
+        .comparison-text {
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+        }
+
+        .text-before {
+            color: #64748b;
+            text-decoration: line-through;
+        }
+
+        .text-after {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 0.125rem 0.25rem;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        /* Highlighted text in improved resume */
+        .highlight-improved {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 0.125rem 0.25rem;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        /* Bottom Action Bar */
+        .bottom-action-bar {
+            background: white;
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            margin-top: 3rem;
+        }
+
+        .bottom-actions {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .top-bar-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .top-actions {
+                width: 100%;
+            }
+
+            .top-actions .btn {
+                flex: 1;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .resume-panel {
+                padding: 1.5rem;
+            }
+
+            .bottom-action-bar {
+                padding: 1rem;
+            }
+
+            .bottom-actions {
+                flex-direction: column;
+            }
+
+            .bottom-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-bar-content">
+            <h1 class="page-title">Resume Improvement Suggestions</h1>
+            <div class="top-actions">
+                <button class="btn btn-accept-all">Accept All Changes</button>
+                <button class="btn btn-reject-all">Reject All</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-container">
+        <div class="comparison-container">
+            <!-- Original Resume Panel -->
+            <div class="resume-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">Original Resume</h2>
+                    <span class="panel-badge badge-original">Original</span>
+                </div>
+                <div class="resume-content">
+                    <div class="resume-section">
+                        <h3 class="section-title">Professional Summary</h3>
+                        <p>Software engineer with experience in web development. Worked on various projects and helped build applications.</p>
+                    </div>
+                    <div class="resume-section">
+                        <h3 class="section-title">Work Experience</h3>
+                        <p><strong>Senior Developer</strong> | Tech Company | 2020-2023</p>
+                        <p>Developed web applications using JavaScript and React. Fixed bugs and added features. Worked with a team of developers.</p>
+                    </div>
+                    <div class="resume-section">
+                        <h3 class="section-title">Skills</h3>
+                        <p>JavaScript, React, Node.js, HTML, CSS</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI-Improved Resume Panel -->
+            <div class="resume-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">AI-Improved Resume</h2>
+                    <span class="panel-badge badge-improved">Improved</span>
+                </div>
+                <div class="resume-content">
+                    <div class="resume-section">
+                        <h3 class="section-title">Professional Summary</h3>
+                        <p>Results-driven software engineer with <span class="highlight-improved">5+ years of experience</span> specializing in full-stack web development. <span class="highlight-improved">Led development of scalable applications</span> serving <span class="highlight-improved">50,000+ users</span>, leveraging modern JavaScript frameworks and cloud technologies.</p>
+                    </div>
+                    <div class="resume-section">
+                        <h3 class="section-title">Work Experience</h3>
+                        <p><strong>Senior Developer</strong> | Tech Company | 2020-2023</p>
+                        <p><span class="highlight-improved">Architected and developed</span> responsive web applications using JavaScript and React, <span class="highlight-improved">reducing load times by 40%</span> and improving user engagement. <span class="highlight-improved">Collaborated with cross-functional teams</span> of 8+ developers, following Agile methodologies to deliver features on time.</p>
+                    </div>
+                    <div class="resume-section">
+                        <h3 class="section-title">Skills</h3>
+                        <p>JavaScript (ES6+), React, Node.js, HTML5, CSS3, <span class="highlight-improved">TypeScript, RESTful APIs, Git, AWS</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Improvement Suggestions -->
+        <div class="improvement-item">
+            <div class="improvement-header">
+                <div class="improvement-explanation">
+                    Added quantifiable metrics and years of experience to strengthen the summary and make it more impactful.
+                </div>
+                <div class="improvement-actions">
+                    <button class="btn btn-accept">Accept</button>
+                    <button class="btn btn-reject">Reject</button>
+                </div>
+            </div>
+            <div class="comparison-text">
+                <div class="text-before">Software engineer with experience in web development. Worked on various projects and helped build applications.</div>
+                <div class="text-after">Results-driven software engineer with 5+ years of experience specializing in full-stack web development. Led development of scalable applications serving 50,000+ users, leveraging modern JavaScript frameworks and cloud technologies.</div>
+            </div>
+        </div>
+
+        <div class="improvement-item">
+            <div class="improvement-header">
+                <div class="improvement-explanation">
+                    Enhanced work experience description with action verbs, quantifiable results, and specific achievements.
+                </div>
+                <div class="improvement-actions">
+                    <button class="btn btn-accept">Accept</button>
+                    <button class="btn btn-reject">Reject</button>
+                </div>
+            </div>
+            <div class="comparison-text">
+                <div class="text-before">Developed web applications using JavaScript and React. Fixed bugs and added features. Worked with a team of developers.</div>
+                <div class="text-after">Architected and developed responsive web applications using JavaScript and React, reducing load times by 40% and improving user engagement. Collaborated with cross-functional teams of 8+ developers, following Agile methodologies to deliver features on time.</div>
+            </div>
+        </div>
+
+        <div class="improvement-item">
+            <div class="improvement-header">
+                <div class="improvement-explanation">
+                    Expanded skills section with additional relevant technologies and modernized technology names to match industry standards.
+                </div>
+                <div class="improvement-actions">
+                    <button class="btn btn-accept">Accept</button>
+                    <button class="btn btn-reject">Reject</button>
+                </div>
+            </div>
+            <div class="comparison-text">
+                <div class="text-before">JavaScript, React, Node.js, HTML, CSS</div>
+                <div class="text-after">JavaScript (ES6+), React, Node.js, HTML5, CSS3, TypeScript, RESTful APIs, Git, AWS</div>
+            </div>
+        </div>
+    </main>
+
+    <div class="bottom-action-bar">
+        <div class="bottom-actions">
+            <button class="btn btn-primary">Download Improved Resume</button>
+            <button class="btn btn-secondary">Continue Editing</button>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in — ResumeAI</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        :root {
+            --bg: #f4f6f8;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --blue: #2563eb;
+            --blue-hover: #1d4ed8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .site-header {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .brand-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #e0f2fe 0%, #bae6fd 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid #7dd3fc;
+        }
+
+        .brand-mark svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .main-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem 1.25rem 2.5rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 8px 24px rgba(15, 23, 42, 0.06);
+            padding: 2rem 2rem 2.25rem;
+        }
+
+        .card-intro {
+            text-align: center;
+            margin-bottom: 1.75rem;
+        }
+
+        .sparkle {
+            display: inline-flex;
+            margin-bottom: 0.5rem;
+            color: var(--blue);
+        }
+
+        .eyebrow {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--blue);
+            text-transform: uppercase;
+            margin-bottom: 0.35rem;
+        }
+
+        .card-intro h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.25;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-intro p {
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .field {
+            margin-bottom: 1.125rem;
+        }
+
+        .field label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .input-shell {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .input-shell:focus-within {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .input-shell .icon-left {
+            display: flex;
+            padding-left: 0.75rem;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        .input-shell input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font: inherit;
+            font-size: 0.9375rem;
+            padding: 0.65rem 0.75rem 0.65rem 0.5rem;
+            min-width: 0;
+            background: transparent;
+            color: var(--text);
+        }
+
+        .input-shell input::placeholder {
+            color: #94a3b8;
+        }
+
+        .toggle-pass {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.65rem;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .toggle-pass:hover {
+            color: #64748b;
+        }
+
+        .row-forgot {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: -0.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .row-forgot a {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--blue);
+            text-decoration: none;
+        }
+
+        .row-forgot a:hover {
+            text-decoration: underline;
+        }
+
+        .verify-label {
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .turnstile-wrap {
+            margin-bottom: 1.5rem;
+        }
+
+        .turnstile-wrap .cf-turnstile {
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font: inherit;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #fff;
+            background: var(--blue);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-primary:hover {
+            background: var(--blue-hover);
+        }
+
+        .auth-alt {
+            margin-top: 0.85rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+
+        .auth-alt button {
+            border: none;
+            background: transparent;
+            color: var(--blue);
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.25rem;
+        }
+
+        .auth-alt button:hover {
+            text-decoration: underline;
+        }
+
+        .register-modal[hidden] {
+            display: none;
+        }
+
+        .register-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .register-modal-card {
+            width: 100%;
+            max-width: 440px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+            padding: 1.25rem;
+        }
+
+        .app-dialog[hidden] {
+            display: none;
+        }
+
+        .app-dialog {
+            position: fixed;
+            inset: 0;
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .app-dialog-card {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.2);
+            padding: 1.25rem 1.25rem 1rem;
+        }
+
+        .app-dialog-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .app-dialog-message {
+            font-size: 0.9rem;
+            color: #334155;
+            line-height: 1.55;
+            margin-bottom: 1rem;
+        }
+
+        .app-dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+        }
+
+        .app-dialog-actions .btn {
+            width: auto;
+            padding: 0.65rem 1.25rem;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, opacity 0.15s;
+        }
+
+        .app-dialog-actions .btn-primary {
+            color: #fff;
+            background: var(--blue);
+            border: none;
+        }
+
+        .app-dialog-actions .btn-primary:hover {
+            background: var(--blue-hover);
+        }
+
+        .app-dialog-actions .btn-secondary {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid var(--border);
+        }
+
+        .app-dialog-actions .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .divider {
+            margin: 1.25rem 0;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 2rem);
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .btn-google {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            padding: 0.65rem 1rem;
+            font: inherit;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text);
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .btn-google:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .btn-google svg {
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 1.5rem 1.25rem 1.75rem;
+            }
+
+            .card-intro h1 {
+                font-size: 1.35rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a href="index.html" class="brand" aria-label="JOBSUIT home">
+            <span class="brand-name">ResumeAI</span>
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="14" r="7" fill="#0ea5e9"/>
+                    <ellipse cx="16" cy="25" rx="9" ry="5" fill="#0369a1"/>
+                    <path d="M8 10 L16 4 L24 10 L22 12 L16 8 L10 12 Z" fill="#1e40af"/>
+                    <rect x="11" y="7" width="10" height="4" rx="1" fill="#1d4ed8"/>
+                </svg>
+            </span>
+        </a>
+    </header>
+
+    <div class="main-wrap">
+        <div class="card">
+            <div class="card-intro">
+                <div class="sparkle" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2l1.5 6.5L20 12l-6.5 3.5L12 22l-1.5-6.5L4 12l6.5-3.5L12 2z"/>
+                    </svg>
+                </div>
+                <p class="eyebrow">Welcome back</p>
+                <h1>Sign in to your account</h1>
+                <p>Continue building your perfect resume with AI assistance</p>
+            </div>
+
+            <form id="signin-form">
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <div class="input-shell">
+                        <span class="icon-left">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                <path d="M3 7l9 6 9-6"/>
+                            </svg>
+                        </span>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div id="react-login-password"></div>
+                </div>
+
+                <div class="row-forgot">
+                    <a href="#">Forgot your password?</a>
+                </div>
+
+                <p class="verify-label">Security Verification</p>
+                <div class="turnstile-wrap">
+                    <!-- Test key: always passes. Replace with your Cloudflare Turnstile site key in production. -->
+                    <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-theme="light"></div>
+                </div>
+
+                <button type="submit" class="btn-primary">Sign in</button>
+                <p class="auth-alt">
+                    Don't have an account?
+                    <button type="button" id="open-register">Register</button>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div class="register-modal" id="register-modal" hidden>
+        <div class="register-modal-card" role="dialog" aria-modal="true" aria-labelledby="register-title">
+            <h2 id="register-title" style="font-size:1.125rem; margin-bottom:0.75rem;">Create account</h2>
+            <form id="register-form">
+                <div class="field">
+                    <label for="register-first-name">First name</label>
+                    <div class="input-shell">
+                        <input type="text" id="register-first-name" placeholder="John" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="register-last-name">Last name</label>
+                    <div class="input-shell">
+                        <input type="text" id="register-last-name" placeholder="Doe" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="register-email">Email address</label>
+                    <div class="input-shell">
+                        <input type="email" id="register-email" placeholder="you@example.com" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="register-password">Password</label>
+                    <div id="react-register-password"></div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:1rem;">
+                    <button type="button" class="btn-google" id="close-register" style="width:auto; padding:0.5rem 0.9rem;">Cancel</button>
+                    <button type="submit" class="btn-primary" style="width:auto; padding:0.5rem 1rem;">Create account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-dialog" id="app-dialog" hidden>
+        <div
+            class="app-dialog-card"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="app-dialog-title"
+            aria-describedby="app-dialog-message"
+        >
+            <h3 class="app-dialog-title" id="app-dialog-title">ResumeAI</h3>
+            <p class="app-dialog-message" id="app-dialog-message"></p>
+            <div class="app-dialog-actions">
+                <button type="button" class="btn btn-secondary" id="app-dialog-cancel" hidden>Cancel</button>
+                <button type="button" class="btn btn-primary" id="app-dialog-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="js/react-ui.js"></script>
+    <script>
+        (function () {
+            if (window.ResumeAI) {
+                ResumeAI.mountPasswordInput(document.getElementById('react-login-password'), {
+                    id: 'password',
+                    name: 'password',
+                    placeholder: 'Enter your password',
+                    autoComplete: 'current-password'
+                });
+                ResumeAI.mountPasswordInput(document.getElementById('react-register-password'), {
+                    id: 'register-password',
+                    placeholder: 'Minimum 8 characters',
+                    minLength: 8,
+                    autoComplete: 'new-password'
+                });
+            }
+
+            var API_BASE_URL = (function () {
+                if (typeof window === 'undefined' || !window.location) {
+                    return 'http://127.0.0.1:5000';
+                }
+                var h = window.location.hostname;
+                if (!h || window.location.protocol === 'file:') {
+                    return 'http://127.0.0.1:5000';
+                }
+                return window.location.protocol + '//' + h + ':5000';
+            })();
+
+            function showAppDialog(opts) {
+                opts = opts || {};
+                return new Promise(function (resolve) {
+                    var overlay = document.getElementById('app-dialog');
+                    var titleEl = document.getElementById('app-dialog-title');
+                    var msgEl = document.getElementById('app-dialog-message');
+                    var btnOk = document.getElementById('app-dialog-ok');
+                    var btnCancel = document.getElementById('app-dialog-cancel');
+                    var confirmMode = !!opts.confirm;
+
+                    titleEl.textContent = opts.title != null ? opts.title : 'ResumeAI';
+                    msgEl.textContent = opts.message != null ? String(opts.message) : '';
+                    btnCancel.hidden = !confirmMode;
+                    btnOk.textContent = opts.okLabel || 'OK';
+                    btnCancel.textContent = opts.cancelLabel || 'Cancel';
+
+                    function finish(value) {
+                        overlay.hidden = true;
+                        btnOk.removeEventListener('click', onOk);
+                        btnCancel.removeEventListener('click', onCancel);
+                        overlay.removeEventListener('click', onBackdrop);
+                        document.removeEventListener('keydown', onKey);
+                        resolve(value);
+                    }
+                    function onOk() {
+                        finish(true);
+                    }
+                    function onCancel() {
+                        finish(false);
+                    }
+                    function onBackdrop(e) {
+                        if (e.target === overlay) {
+                            finish(confirmMode ? false : true);
+                        }
+                    }
+                    function onKey(e) {
+                        if (e.key === 'Escape') {
+                            finish(confirmMode ? false : true);
+                        }
+                    }
+                    btnOk.addEventListener('click', onOk);
+                    btnCancel.addEventListener('click', onCancel);
+                    overlay.addEventListener('click', onBackdrop);
+                    document.addEventListener('keydown', onKey);
+                    overlay.hidden = false;
+                    requestAnimationFrame(function () {
+                        btnOk.focus();
+                    });
+                });
+            }
+
+            function appAlert(message, title) {
+                return showAppDialog({ message: message, title: title, confirm: false });
+            }
+
+            function appConfirm(message, title) {
+                return showAppDialog({ message: message, title: title, confirm: true });
+            }
+            var signInForm = document.getElementById('signin-form');
+            var registerModal = document.getElementById('register-modal');
+            var registerForm = document.getElementById('register-form');
+            var openRegisterBtn = document.getElementById('open-register');
+            var closeRegisterBtn = document.getElementById('close-register');
+
+            function closeRegisterModal() {
+                registerModal.hidden = true;
+            }
+
+            if (openRegisterBtn && registerModal) {
+                openRegisterBtn.addEventListener('click', function () {
+                    registerModal.hidden = false;
+                });
+            }
+            if (closeRegisterBtn && registerModal) {
+                closeRegisterBtn.addEventListener('click', closeRegisterModal);
+            }
+            if (registerModal) {
+                registerModal.addEventListener('click', function (event) {
+                    if (event.target === registerModal) {
+                        closeRegisterModal();
+                    }
+                });
+            }
+            if (registerForm) {
+                registerForm.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    var firstName = document.getElementById('register-first-name').value.trim();
+                    var lastName = document.getElementById('register-last-name').value.trim();
+                    var email = document.getElementById('register-email').value.trim();
+                    var password = document.getElementById('register-password').value;
+                    try {
+                        var response = await fetch(API_BASE_URL + '/api/auth/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                firstName: firstName,
+                                lastName: lastName,
+                                email: email,
+                                password: password
+                            })
+                        });
+                        var data = await response.json();
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Registration failed');
+                        }
+                        localStorage.setItem('jobsuit_token', data.token);
+                        localStorage.removeItem('jobsuit_profile');
+                        localStorage.setItem('jobsuit_user', JSON.stringify(data.user || {}));
+                        if (data.user && data.user.id) {
+                            localStorage.setItem('jobsuit_active_user', data.user.id);
+                        }
+                        window.location.href = 'dashboard.html';
+                    } catch (error) {
+                        await appAlert(error.message || 'Could not register. Please try again.');
+                    }
+                });
+            }
+
+            if (!signInForm) return;
+            signInForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                var email = document.getElementById('email').value.trim();
+                var password = document.getElementById('password').value;
+                if (!email || !password) {
+                    await appAlert('Please enter email and password.');
+                    return;
+                }
+                try {
+                    var response = await fetch(API_BASE_URL + '/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, password: password })
+                    });
+                    var data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Login failed');
+                    }
+                    localStorage.setItem('jobsuit_token', data.token);
+                    localStorage.removeItem('jobsuit_profile');
+                    localStorage.setItem('jobsuit_user', JSON.stringify(data.user || {}));
+                    if (data.user && data.user.id) {
+                        localStorage.setItem('jobsuit_active_user', data.user.id);
+                    }
+                    window.location.href = 'dashboard.html';
+                } catch (error) {
+                    await appAlert(error.message || 'Could not sign in. Please check your backend connection.');
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
