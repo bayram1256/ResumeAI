@@ -1,101 +1,101 @@
 # ResumeAI
 
-AI-платформа для анализа резюме, подбора вакансий и генерации сопроводительных писем. Пользователь загружает резюме, добавляет описание вакансии, получает оценку соответствия (fit score), AI-рекомендации по улучшению и экспортирует готовые документы в PDF/DOCX.
+AI-powered platform for resume analysis, job matching, and cover letter generation. Users upload a resume, add a job description, receive a fit score, get AI-driven improvement suggestions, and export polished documents as PDF or DOCX.
 
-**Репозиторий:** [github.com/bayram1256/ResumeAI](https://github.com/bayram1256/ResumeAI)
-
----
-
-## Возможности
-
-- **Регистрация и авторизация** — JWT, защищённые маршруты API
-- **Загрузка резюме** — парсинг PDF и DOCX, хранение в базе данных
-- **Описания вакансий** — создание и управление job descriptions
-- **Fit Score** — ML-модель оценивает соответствие резюме вакансии (навыки, опыт, образование)
-- **AI-рекомендации** — предложения по улучшению резюме через Hugging Face (Qwen2.5)
-- **Сопроводительные письма** — генерация cover letter под конкретную вакансию
-- **Экспорт** — скачивание улучшенного резюме и писем в PDF/DOCX
-- **5-шаговый workflow** — пошаговый интерфейс: загрузка → анализ → правки → повторный анализ → экспорт
+**Repository:** [github.com/bayram1256/ResumeAI](https://github.com/bayram1256/ResumeAI)
 
 ---
 
-## Технологии
+## Features
 
-| Слой | Стек |
-|------|------|
+- **Authentication** — JWT-based auth with protected API routes
+- **Resume upload** — PDF and DOCX parsing with database storage
+- **Job descriptions** — create and manage job postings
+- **Fit Score** — ML model evaluates resume-to-job match (skills, experience, education)
+- **AI suggestions** — resume improvement recommendations via Hugging Face (Qwen2.5)
+- **Cover letters** — generate tailored cover letters for specific jobs
+- **Export** — download improved resumes and letters as PDF/DOCX
+- **5-step workflow** — guided UI: upload → analyze → edit → re-analyze → export
+
+---
+
+## Tech Stack
+
+| Layer | Stack |
+|-------|-------|
 | **Backend** | Node.js, Express 5, TypeScript, Prisma ORM |
-| **База данных** | MySQL 8 |
+| **Database** | MySQL 8 |
 | **AI** | Hugging Face Inference API (Qwen/Qwen2.5-7B-Instruct) |
 | **ML** | Python, TensorFlow, scikit-learn (fit score model) |
 | **Frontend** | HTML, Vanilla JS + React (islands pattern, CDN) |
-| **Документы** | pdf-parse, mammoth, pdfkit, docx |
-| **Инфраструктура** | Docker Compose |
+| **Documents** | pdf-parse, mammoth, pdfkit, docx |
+| **Infrastructure** | Docker Compose |
 
 ---
 
-## Структура проекта
+## Project Structure
 
 ```
 ResumeAI/
 ├── Final-Project/          # Backend API
 │   ├── src/
 │   │   ├── controllers/    # auth, resume, job, workflow, coverLetter
-│   │   ├── routes/         # REST-маршруты
-│   │   ├── services/       # AI, fit score, parser, export
-│   │   ├── middleware/     # JWT auth, upload, error handler
-│   │   └── python/         # ML inference script
-│   ├── prisma/             # схема БД и миграции
-│   ├── model_assets/       # обученная ML-модель
+│   │   ├── routes/           # REST routes
+│   │   ├── services/         # AI, fit score, parser, export
+│   │   ├── middleware/       # JWT auth, upload, error handler
+│   │   └── python/           # ML inference script
+│   ├── prisma/               # database schema and migrations
+│   ├── model_assets/         # trained ML model
 │   ├── docker-compose.yml
 │   └── Dockerfile.backend
 │
-└── frontend_son/           # Frontend UI
-    ├── index.html          # страница входа / регистрации
-    ├── dashboard.html      # основное приложение
-    ├── js/react-ui.js      # React-компоненты (islands)
+└── frontend_son/             # Frontend UI
+    ├── index.html            # login / registration page
+    ├── dashboard.html        # main application
+    ├── js/react-ui.js        # React components (islands)
     └── improved-resume.html
 ```
 
 ---
 
-## Быстрый старт (Docker)
+## Quick Start (Docker)
 
-Самый простой способ запустить весь стек:
+The fastest way to run the full stack:
 
 ```bash
 cd Final-Project
 
-# Создайте .env с API-ключом Hugging Face
-echo 'HUGGINGFACE_API_KEY=ваш_ключ_здесь' > .env
+# Create .env with your Hugging Face API key
+echo 'HUGGINGFACE_API_KEY=your_key_here' > .env
 
 docker compose up --build
 ```
 
-После запуска:
+Once running:
 
-| Сервис | URL |
-|--------|-----|
+| Service | URL |
+|---------|-----|
 | Backend API | http://localhost:5000 |
 | Frontend | http://localhost:5501 |
 | MySQL | localhost:3307 |
 
-Проверка API: `curl http://localhost:5000/health` → `{"status":"ok"}`
+Health check: `curl http://localhost:5000/health` → `{"status":"ok"}`
 
 ---
 
-## Локальная установка (без Docker)
+## Local Setup (without Docker)
 
-### Требования
+### Prerequisites
 
 - Node.js 20+
 - MySQL 8
-- Python 3.11+ (для ML fit score)
-- Hugging Face API key ([получить токен](https://huggingface.co/settings/tokens))
+- Python 3.11+ (for ML fit score)
+- Hugging Face API key ([get a token](https://huggingface.co/settings/tokens))
 
-### 1. База данных
+### 1. Database
 
 ```bash
-# Запустите MySQL и создайте базу
+# Start MySQL and create the database
 mysql -u root -p -e "CREATE DATABASE final_project;"
 ```
 
@@ -105,11 +105,11 @@ mysql -u root -p -e "CREATE DATABASE final_project;"
 cd Final-Project
 
 cp .env.example .env
-# Отредактируйте .env — укажите DATABASE_URL, JWT_SECRET, HUGGINGFACE_API_KEY
+# Edit .env — set DATABASE_URL, JWT_SECRET, HUGGINGFACE_API_KEY
 
 npm install
 
-# Python-зависимости для ML-модели
+# Python dependencies for the ML model
 python3 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements-ml.txt
@@ -120,7 +120,7 @@ npx prisma migrate dev
 npm run dev
 ```
 
-Сервер запустится на **http://localhost:5000**
+Server runs at **http://localhost:5000**
 
 ### 3. Frontend
 
@@ -129,84 +129,84 @@ cd frontend_son
 python3 -m http.server 5501
 ```
 
-Откройте **http://localhost:5501** в браузере.
+Open **http://localhost:5501** in your browser.
 
-> Используйте HTTP-сервер, а не `file://` — иначе API-запросы не будут работать.
+> Use an HTTP server, not `file://` — otherwise API requests will fail due to CORS.
 
 ---
 
-## Переменные окружения
+## Environment Variables
 
-| Переменная | Описание | Пример |
-|------------|----------|--------|
-| `DATABASE_URL` | Строка подключения MySQL | `mysql://root:root@localhost:3307/final_project` |
-| `JWT_SECRET` | Секрет для JWT-токенов | `your-secret-key` |
-| `PORT` | Порт API-сервера | `5000` |
-| `HUGGINGFACE_API_KEY` | API-ключ Hugging Face | `hf_...` |
-| `HUGGINGFACE_MODEL` | Модель для генерации | `Qwen/Qwen2.5-7B-Instruct` |
-| `AI_PROVIDER` | Провайдер AI | `huggingface` |
-| `FIT_SCORE_MODEL_BUNDLE` | Путь к ML-бандлу | `./fit_score_model_bundle.zip` |
-| `FIT_SCORE_MODEL_DIR` | Папка с моделью | `./model_assets` |
-| `PYTHON_EXECUTABLE` | Путь к Python | `.venv/bin/python` |
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `DATABASE_URL` | MySQL connection string | `mysql://root:root@localhost:3307/final_project` |
+| `JWT_SECRET` | Secret for JWT tokens | `your-secret-key` |
+| `PORT` | API server port | `5000` |
+| `HUGGINGFACE_API_KEY` | Hugging Face API key | `hf_...` |
+| `HUGGINGFACE_MODEL` | Model for text generation | `Qwen/Qwen2.5-7B-Instruct` |
+| `AI_PROVIDER` | AI provider | `huggingface` |
+| `FIT_SCORE_MODEL_BUNDLE` | Path to ML bundle | `./fit_score_model_bundle.zip` |
+| `FIT_SCORE_MODEL_DIR` | Model assets directory | `./model_assets` |
+| `PYTHON_EXECUTABLE` | Path to Python binary | `.venv/bin/python` |
 
 ---
 
 ## API
 
-Все защищённые маршруты требуют заголовок `Authorization: Bearer <token>`.
+All protected routes require the `Authorization: Bearer <token>` header.
 
-### Аутентификация
+### Authentication
 
-| Метод | Маршрут | Описание |
-|-------|---------|----------|
-| `POST` | `/api/auth/register` | Регистрация |
-| `POST` | `/api/auth/login` | Вход, получение JWT |
+| Method | Route | Description |
+|--------|-------|-------------|
+| `POST` | `/api/auth/register` | Register a new account |
+| `POST` | `/api/auth/login` | Login and receive JWT |
 
-### Профиль
+### Profile
 
-| Метод | Маршрут | Описание |
-|-------|---------|----------|
-| `GET` | `/api/profile` | Данные текущего пользователя |
+| Method | Route | Description |
+|--------|-------|-------------|
+| `GET` | `/api/profile` | Current user profile |
 
-### Резюме
+### Resumes
 
-| Метод | Маршрут | Описание |
-|-------|---------|----------|
-| `POST` | `/api/resumes/upload` | Загрузка резюме (PDF/DOCX) |
-| `GET` | `/api/resumes` | Список резюме |
-| `GET` | `/api/resumes/:id` | Одно резюме |
-| `GET` | `/api/resumes/:id/download` | Скачать файл |
-| `DELETE` | `/api/resumes/:id` | Удалить резюме |
+| Method | Route | Description |
+|--------|-------|-------------|
+| `POST` | `/api/resumes/upload` | Upload resume (PDF/DOCX) |
+| `GET` | `/api/resumes` | List resumes |
+| `GET` | `/api/resumes/:id` | Get a single resume |
+| `GET` | `/api/resumes/:id/download` | Download resume file |
+| `DELETE` | `/api/resumes/:id` | Delete resume |
 
-### Вакансии
+### Jobs
 
-| Метод | Маршрут | Описание |
-|-------|---------|----------|
-| `POST` | `/api/jobs` | Создать описание вакансии |
-| `GET` | `/api/jobs` | Список вакансий |
-| `GET` | `/api/jobs/:id` | Одна вакансия |
+| Method | Route | Description |
+|--------|-------|-------------|
+| `POST` | `/api/jobs` | Create job description |
+| `GET` | `/api/jobs` | List job descriptions |
+| `GET` | `/api/jobs/:id` | Get a single job |
 
 ### Workflow
 
-| Метод | Маршрут | Описание |
-|-------|---------|----------|
-| `POST` | `/api/workflow/analyze` | Анализ fit score |
-| `POST` | `/api/workflow/apply-suggestions` | Применить AI-рекомендации |
-| `POST` | `/api/workflow/cover-letter` | Сгенерировать cover letter |
-| `POST` | `/api/workflow/export` | Экспорт резюме (PDF/DOCX) |
-| `GET` | `/api/workflow/exports/recent` | Последние экспорты |
-| `GET` | `/api/workflow/exports/:id/download` | Скачать экспорт |
+| Method | Route | Description |
+|--------|-------|-------------|
+| `POST` | `/api/workflow/analyze` | Run fit score analysis |
+| `POST` | `/api/workflow/apply-suggestions` | Apply AI suggestions |
+| `POST` | `/api/workflow/cover-letter` | Generate cover letter |
+| `POST` | `/api/workflow/export` | Export resume (PDF/DOCX) |
+| `GET` | `/api/workflow/exports/recent` | List recent exports |
+| `GET` | `/api/workflow/exports/:id/download` | Download export |
 
 ### Cover Letters
 
-| Метод | Маршрут | Описание |
-|-------|---------|----------|
-| `GET` | `/api/cover-letters` | Список писем |
-| `GET` | `/api/cover-letters/:id/download` | Скачать письмо |
+| Method | Route | Description |
+|--------|-------|-------------|
+| `GET` | `/api/cover-letters` | List cover letters |
+| `GET` | `/api/cover-letters/:id/download` | Download cover letter |
 
 ---
 
-## Как это работает
+## How It Works
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
@@ -222,42 +222,42 @@ python3 -m http.server 5501
         └──────────┘ └──────────┘ └──────────┘
 ```
 
-1. Пользователь регистрируется и загружает резюме
-2. Добавляет описание вакансии
-3. ML-модель считает fit score (навыки, опыт, образование)
-4. AI генерирует рекомендации по улучшению резюме
-5. Пользователь применяет правки и повторно анализирует
-6. Экспортирует улучшенное резюме и cover letter
+1. User registers and uploads a resume
+2. Adds a job description
+3. ML model computes fit score (skills, experience, education)
+4. AI generates resume improvement suggestions
+5. User applies edits and re-analyzes
+6. Exports the improved resume and cover letter
 
 ---
 
 ## Frontend
 
-Гибридная архитектура — **React Islands**:
+Hybrid **React Islands** architecture:
 
-- Основная логика на Vanilla JS (auth, workflow, API-вызовы)
-- 4 React-компонента для интерактивных виджетов:
-  - `PasswordInput` — показ/скрытие пароля
-  - `UserBadge` — аватар и email в сайдбаре
-  - `FitScoreCircle` — круговой индикатор fit score
-  - `SuggestionCard` — AI-рекомендации с чекбоксами
+- Core logic in Vanilla JS (auth, workflow, API calls)
+- 4 React components for interactive widgets:
+  - `PasswordInput` — show/hide password toggle
+  - `UserBadge` — avatar and email in the sidebar
+  - `FitScoreCircle` — circular fit score indicator
+  - `SuggestionCard` — AI suggestions with checkboxes
 
-React подключается через CDN — **сборка не нужна**.
+React is loaded via CDN — **no build step required**.
 
 ---
 
-## Скрипты
+## Scripts
 
 ```bash
 cd Final-Project
 
-npm run dev      # разработка (nodemon + ts-node)
-npm run build    # компиляция TypeScript → dist/
-npm run start    # запуск скомпилированного сервера
+npm run dev      # development (nodemon + ts-node)
+npm run build    # compile TypeScript → dist/
+npm run start    # run compiled server
 ```
 
 ---
 
-## Автор
+## Author
 
 **Bayram** — [github.com/bayram1256](https://github.com/bayram1256)
